@@ -287,7 +287,7 @@
       }, 4000);
 
       modal.hidden = false;
-      document.body.classList.add('bm-lock');
+      document.documentElement.classList.add('bm-lock');
       void modal.offsetHeight; // force reflow so the open transition runs
       modal.classList.add('open');
       fitFrame();
@@ -299,7 +299,7 @@
       isOpen = false;
       clearTimeout(loadTimer);
       modal.classList.remove('open');
-      document.body.classList.remove('bm-lock');
+      document.documentElement.classList.remove('bm-lock');
       setTimeout(function () {
         modal.hidden = true;
         if (frame) { frame.remove(); frame = null; }

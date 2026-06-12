@@ -688,7 +688,9 @@ html[dir="ltr"] .bm-chrome { flex-direction: row-reverse; }
 
 @keyframes bm-spin { to { transform: rotate(360deg); } }
 
-body.bm-lock { overflow: hidden; }
+/* lock must sit on html: body overflow no longer propagates to the
+   viewport because html has overflow-x: clip */
+html.bm-lock, html.bm-lock body { overflow: hidden; }
 
 @media (max-width: 48rem) {
   .browser-modal { padding: 0; }
