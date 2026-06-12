@@ -242,6 +242,45 @@ function init(renderer) {
   const browserDir = () => document.documentElement.dir === 'rtl' ? -1 : 1;
   const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeFrame(), shapeStar()];
 
+  /* Handshake ring for the contact section: sample the silhouette mask
+     into shape slot 4, replacing the plain frame once loaded. */
+  (function loadHandshake(target) {
+    const img = new Image();
+    img.onload = function () {
+      const w = img.naturalWidth, h = img.naturalHeight;
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      const cx = c.getContext('2d');
+      cx.drawImage(img, 0, 0);
+      let data;
+      try { data = cx.getImageData(0, 0, w, h).data; } catch (e) { return; }
+
+      const pts = [];
+      const handsTop = h * 0.62;   // the clasp area gets 3x density
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          if (data[(y * w + x) * 4] < 128) {
+            pts.push(x, y);
+            if (y > handsTop) { pts.push(x, y, x, y); }
+          }
+        }
+      }
+      if (pts.length < 600) return;
+
+      const nPix = pts.length / 2;
+      const s = 5.8 / h;                 // ~5.8 world units tall
+      const cyRow = h * 0.46;            // ring center sits above the hands
+      for (let i = 0; i < N; i++) {
+        const j = ((Math.random() * nPix) | 0) * 2;
+        target[i * 3] = (pts[j] - w / 2 + Math.random()) * s;
+        target[i * 3 + 1] = (cyRow - pts[j + 1] + Math.random()) * s;
+        target[i * 3 + 2] = gauss(0.05);
+      }
+      if (isForced && targetIdx === 4) base.set(target);
+    };
+    img.src = '/assets/handshake-mask.png';
+  })(shapes[4]);
+
   // rebuild the browser shape when the language toggle flips direction
   new MutationObserver(() => {
     shapes[2].set(shapeBrowser(browserDir()));
