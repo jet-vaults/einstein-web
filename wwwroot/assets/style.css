@@ -230,6 +230,10 @@ h3 { font-size: 1.2rem; margin-block-end: 0.35rem; }
   position: relative;
 }
 
+/* .container is a flex item inside .panel — keep it full width so
+   side-layout justification actually has room to work */
+.panel > .container { width: 100%; }
+
 /* Hero */
 .hero { min-height: calc(100vh - 5rem); }
 
