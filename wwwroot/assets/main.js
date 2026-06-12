@@ -81,7 +81,17 @@
       'bm.fallbackCta': 'פתחו אותו בכרטיסייה חדשה',
       'footer.rights': 'כל הזכויות שמורות',
       'footer.accessibility': 'הצהרת נגישות',
-      'footer.privacy': 'מדיניות פרטיות'
+      'footer.privacy': 'מדיניות פרטיות',
+      'a11y.title': 'הגדרות נגישות',
+      'a11y.fontsize': 'הגדלת טקסט',
+      'a11y.contrast': 'ניגודיות גבוהה',
+      'a11y.grayscale': 'שחור-לבן',
+      'a11y.links': 'הדגשת קישורים',
+      'a11y.readable': 'גופן קריא',
+      'a11y.nomotion': 'עצירת אנימציות',
+      'a11y.cursor': 'סמן גדול',
+      'a11y.reset': 'איפוס הגדרות',
+      'a11y.statement': 'להצהרת הנגישות'
     },
     en: {
       'meta.title': 'Einstein Web - Web Development & Digital Experiences',
@@ -161,7 +171,17 @@
       'bm.fallbackCta': 'Open it in a new tab',
       'footer.rights': 'All rights reserved',
       'footer.accessibility': 'Accessibility statement',
-      'footer.privacy': 'Privacy policy'
+      'footer.privacy': 'Privacy policy',
+      'a11y.title': 'Accessibility settings',
+      'a11y.fontsize': 'Larger text',
+      'a11y.contrast': 'High contrast',
+      'a11y.grayscale': 'Grayscale',
+      'a11y.links': 'Highlight links',
+      'a11y.readable': 'Readable font',
+      'a11y.nomotion': 'Stop animations',
+      'a11y.cursor': 'Large cursor',
+      'a11y.reset': 'Reset settings',
+      'a11y.statement': 'Accessibility statement'
     }
   };
 
@@ -347,6 +367,63 @@
     if (previewUrl && cardUrls.indexOf(previewUrl) !== -1) {
       window.addEventListener('load', function () { openPreview(previewUrl); });
     }
+  })();
+
+  /* ===== Accessibility menu ===== */
+  (function () {
+    var root = document.getElementById('a11y');
+    if (!root) return;
+    var toggle = document.getElementById('a11yToggle');
+    var panel = document.getElementById('a11yPanel');
+    var A11Y_KEY = 'einstein-web-a11y';
+
+    var state = {};
+    try { state = JSON.parse(localStorage.getItem(A11Y_KEY)) || {}; } catch (e) { state = {}; }
+
+    function applyState() {
+      document.querySelectorAll('[data-a11y]').forEach(function (btn) {
+        var key = btn.getAttribute('data-a11y');
+        var on = !!state[key];
+        document.documentElement.classList.toggle('a11y-' + key, on);
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      try { localStorage.setItem(A11Y_KEY, JSON.stringify(state)); } catch (e) { /* private mode */ }
+    }
+
+    function openPanel(open) {
+      panel.hidden = !open;
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+
+    toggle.addEventListener('click', function () {
+      openPanel(panel.hidden);
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !panel.hidden) { openPanel(false); toggle.focus(); }
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!panel.hidden && !root.contains(e.target)) openPanel(false);
+    });
+
+    document.querySelectorAll('[data-a11y]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var key = btn.getAttribute('data-a11y');
+        state[key] = !state[key];
+        applyState();
+      });
+    });
+
+    var reset = document.getElementById('a11yReset');
+    if (reset) {
+      reset.addEventListener('click', function () {
+        state = {};
+        applyState();
+      });
+    }
+
+    applyState();
   })();
 
   /* ===== Contact form -> prefilled email ===== */

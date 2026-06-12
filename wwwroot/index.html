@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/style.css?v=8">
+  <link rel="stylesheet" href="/assets/style.css?v=9">
 </head>
 <body>
 
@@ -239,6 +239,54 @@
     </div>
   </footer>
 
+  <!-- ===== Accessibility menu ===== -->
+  <div class="a11y" id="a11y">
+    <button class="a11y-toggle" id="a11yToggle" type="button" aria-expanded="false" aria-controls="a11yPanel" aria-label="תפריט נגישות · Accessibility menu">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <circle cx="12" cy="4.5" r="2.2"/>
+        <path d="M12 8c-2.8 0-5.1-.5-6.9-1l-.5 1.9c1.6.5 3.4.8 5.4 1v3.2l-2.4 7.2 1.9.7 2.2-6.5h.6l2.2 6.5 1.9-.7-2.4-7.2v-3.2c2-.2 3.8-.5 5.4-1L18.9 7c-1.8.5-4.1 1-6.9 1z"/>
+      </svg>
+    </button>
+    <div class="a11y-panel" id="a11yPanel" role="dialog" aria-label="הגדרות נגישות" hidden>
+      <p class="a11y-title" data-i18n="a11y.title">הגדרות נגישות</p>
+      <div class="a11y-grid">
+        <button type="button" data-a11y="fontsize" aria-pressed="false">
+          <span class="a11y-ico" aria-hidden="true">א+</span>
+          <span data-i18n="a11y.fontsize">הגדלת טקסט</span>
+        </button>
+        <button type="button" data-a11y="contrast" aria-pressed="false">
+          <span class="a11y-ico" aria-hidden="true">◐</span>
+          <span data-i18n="a11y.contrast">ניגודיות גבוהה</span>
+        </button>
+        <button type="button" data-a11y="grayscale" aria-pressed="false">
+          <span class="a11y-ico" aria-hidden="true">▦</span>
+          <span data-i18n="a11y.grayscale">שחור-לבן</span>
+        </button>
+        <button type="button" data-a11y="links" aria-pressed="false">
+          <span class="a11y-ico" aria-hidden="true">⎁</span>
+          <span data-i18n="a11y.links">הדגשת קישורים</span>
+        </button>
+        <button type="button" data-a11y="readable" aria-pressed="false">
+          <span class="a11y-ico" aria-hidden="true">ק</span>
+          <span data-i18n="a11y.readable">גופן קריא</span>
+        </button>
+        <button type="button" data-a11y="nomotion" aria-pressed="false">
+          <span class="a11y-ico" aria-hidden="true">⏸</span>
+          <span data-i18n="a11y.nomotion">עצירת אנימציות</span>
+        </button>
+        <button type="button" data-a11y="cursor" aria-pressed="false">
+          <span class="a11y-ico" aria-hidden="true">➚</span>
+          <span data-i18n="a11y.cursor">סמן גדול</span>
+        </button>
+        <button type="button" id="a11yReset">
+          <span class="a11y-ico" aria-hidden="true">↺</span>
+          <span data-i18n="a11y.reset">איפוס הגדרות</span>
+        </button>
+      </div>
+      <a class="a11y-statement" href="/accessibility.html" data-i18n="a11y.statement">להצהרת הנגישות</a>
+    </div>
+  </div>
+
   <!-- ===== Browser-in-browser preview ===== -->
   <div class="browser-modal" id="browserModal" role="dialog" aria-modal="true" aria-label="Live website preview" hidden>
     <div class="bm-backdrop" data-bm-close></div>
@@ -272,7 +320,7 @@
     </div>
   </div>
 
-  <script src="/assets/main.js?v=8"></script>
+  <script src="/assets/main.js?v=9"></script>
   <script type="importmap">
     { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
   </script>

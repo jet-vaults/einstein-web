@@ -347,10 +347,19 @@ function init(renderer) {
   const clock = new THREE.Clock();
   let running = true;
 
+  const motionStopped = () => document.documentElement.classList.contains('a11y-nomotion');
+
   document.addEventListener('visibilitychange', () => {
-    running = !document.hidden;
+    running = !document.hidden && !motionStopped();
     if (running) { clock.getDelta(); render(); }
   });
+
+  // pause rendering when the accessibility menu stops animations
+  new MutationObserver(() => {
+    const shouldRun = !document.hidden && !motionStopped();
+    if (shouldRun && !running) { running = true; clock.getDelta(); render(); }
+    else if (!shouldRun) { running = false; }
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 
   window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
