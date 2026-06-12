@@ -238,7 +238,28 @@
     var bmClose = document.getElementById('bmClose');
 
     var frame = null, loadTimer = null, lastFocus = null, isOpen = false;
-    var LOAD_TIMEOUT = 9000;
+    var LOAD_TIMEOUT = 20000;
+    var DESKTOP_VIEWPORT = 1280;
+
+    /* Render the site at full desktop width, scaled to fit the popup,
+       so it always looks proportional — like a live screenshot. */
+    function fitFrame() {
+      if (!frame) return;
+      if (window.innerWidth < 768) {
+        frame.style.width = '100%';
+        frame.style.height = '100%';
+        frame.style.transform = 'none';
+        return;
+      }
+      var bw = bmBody.clientWidth, bh = bmBody.clientHeight;
+      if (!bw || !bh) return;
+      var s = bw / DESKTOP_VIEWPORT;
+      frame.style.width = DESKTOP_VIEWPORT + 'px';
+      frame.style.height = Math.round(bh / s) + 'px';
+      frame.style.transform = 'scale(' + s + ')';
+    }
+
+    window.addEventListener('resize', fitFrame);
 
     function openPreview(url) {
       lastFocus = document.activeElement;
@@ -254,22 +275,27 @@
       frame = document.createElement('iframe');
       frame.title = 'Website preview';
       frame.addEventListener('load', function () {
+        // site arrived (even if late) — show it
         clearTimeout(loadTimer);
         bmLoading.hidden = true;
+        bmFallback.hidden = true;
       });
       bmBody.appendChild(frame);
       frame.src = url;
 
+      // slow site: offer the new-tab escape hatch but keep loading behind
       loadTimer = setTimeout(function () {
         bmLoading.hidden = true;
         bmFallback.hidden = false;
-        if (frame) { frame.remove(); frame = null; }
       }, LOAD_TIMEOUT);
 
       modal.hidden = false;
       document.body.classList.add('bm-lock');
       requestAnimationFrame(function () {
-        requestAnimationFrame(function () { modal.classList.add('open'); });
+        requestAnimationFrame(function () {
+          modal.classList.add('open');
+          fitFrame();
+        });
       });
       bmClose.focus();
     }
