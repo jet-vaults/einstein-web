@@ -512,6 +512,59 @@ h3 { font-size: 1.2rem; margin-block-end: 0.35rem; }
 .js-reveal .d2 { transition-delay: 0.2s; }
 .js-reveal .d3 { transition-delay: 0.3s; }
 
+/* ===== Fancy entrances: project & review cards ===== */
+.js-reveal .project-card.reveal,
+.js-reveal .review-card.reveal {
+  transform: none;
+  transition: none;
+}
+
+.js-reveal .project-card.reveal.in {
+  opacity: 1;
+  animation: card-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+
+.js-reveal .review-card.reveal.in {
+  opacity: 1;
+  animation: card-deal-a 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.js-reveal .review-card.reveal.in:nth-child(even) {
+  animation-name: card-deal-b;
+}
+
+.js-reveal .project-card.reveal.in.d1,
+.js-reveal .review-card.reveal.in.d1 { animation-delay: 0.14s; }
+.js-reveal .project-card.reveal.in.d2,
+.js-reveal .review-card.reveal.in.d2 { animation-delay: 0.28s; }
+.js-reveal .project-card.reveal.in.d3,
+.js-reveal .review-card.reveal.in.d3 { animation-delay: 0.42s; }
+
+@keyframes card-rise {
+  from {
+    opacity: 0;
+    transform: perspective(900px) rotateX(14deg) translateY(46px) scale(0.95);
+    filter: blur(6px);
+  }
+  60% { filter: blur(0); }
+  to {
+    opacity: 1;
+    transform: perspective(900px) rotateX(0deg) translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes card-deal-a {
+  from { opacity: 0; transform: translateY(44px) rotate(-3deg) scale(0.93); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes card-deal-b {
+  from { opacity: 0; transform: translateY(44px) rotate(3deg) scale(0.93); }
+  to { opacity: 1; transform: none; }
+}
+
 /* ===== Reduced motion ===== */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
