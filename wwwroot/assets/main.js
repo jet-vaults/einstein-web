@@ -68,7 +68,13 @@
       'p4.desc': 'עלייה לאוויר, חיבור דומיין ואנליטיקס - וליווי שוטף גם אחרי.',
       'contact.kicker': 'צרו קשר',
       'contact.title': 'בואו נבנה משהו ביחד',
-      'contact.sub': 'ספרו לנו על הפרויקט שלכם ונחזור אליכם תוך יום עסקים.',
+      'contact.sub': 'השאירו פרטים ונחזור אליכם תוך יום עסקים.',
+      'contact.name': 'שם מלא',
+      'contact.email': 'אימייל',
+      'contact.phone': 'טלפון',
+      'contact.send': 'שלחו לנו הודעה',
+      'contact.or': 'או כתבו לנו ישירות:',
+      'contact.subject': 'פנייה חדשה מהאתר',
       'bm.live': 'אתר חי',
       'bm.loading': 'טוען את האתר החי…',
       'bm.fallbackText': 'האתר הזה מעדיף להיפתח במסך מלא.',
@@ -140,7 +146,13 @@
       'p4.desc': 'Going live, domain and analytics setup - and ongoing support after.',
       'contact.kicker': 'Get in touch',
       'contact.title': 'Let’s build something together',
-      'contact.sub': 'Tell us about your project and we’ll get back to you within one business day.',
+      'contact.sub': 'Leave your details and we’ll get back to you within one business day.',
+      'contact.name': 'Full name',
+      'contact.email': 'Email',
+      'contact.phone': 'Phone',
+      'contact.send': 'Send us a message',
+      'contact.or': 'Or email us directly:',
+      'contact.subject': 'New inquiry from the website',
       'bm.live': 'Live site',
       'bm.loading': 'Loading the live website…',
       'bm.fallbackText': 'This website prefers to open full-screen.',
@@ -332,6 +344,25 @@
       window.addEventListener('load', function () { openPreview(previewUrl); });
     }
   })();
+
+  /* ===== Contact form -> prefilled email ===== */
+  var contactForm = document.getElementById('contactForm');
+  if (contactForm) {
+    contactForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!contactForm.reportValidity()) return;
+      var dict = I18N[document.documentElement.lang] || I18N.he;
+      var name = document.getElementById('cfName').value.trim();
+      var email = document.getElementById('cfEmail').value.trim();
+      var tel = document.getElementById('cfTel').value.trim();
+      var body = dict['contact.name'] + ': ' + name + '\n' +
+                 dict['contact.email'] + ': ' + email + '\n' +
+                 dict['contact.phone'] + ': ' + tel;
+      location.href = 'mailto:info@einstein-web.co.il' +
+        '?subject=' + encodeURIComponent(dict['contact.subject']) +
+        '&body=' + encodeURIComponent(body);
+    });
+  }
 
   /* ===== Count-up stats ===== */
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;

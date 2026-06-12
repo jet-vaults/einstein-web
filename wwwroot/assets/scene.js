@@ -187,25 +187,39 @@ function init(renderer) {
     return out;
   }
 
-  function shapePlane() {
+  function shapeFrame() {
+    // rounded-rect halo that hugs the contact card: "let's build together"
     const out = new Float32Array(N * 3);
-    const nose = [2.3, 0.45, 0];
-    const wingL = [[-1.9, 1.5, 0.9], [-1.6, 0.1, 0.1]];
-    const wingR = [[-1.9, 1.5, -0.9], [-1.6, 0.1, -0.1]];
-    const keel = [[-1.6, 0.1, 0], [-1.35, -0.85, 0]];
-    const nTrail = Math.floor(N * 0.08);
-    const nWing = Math.floor((N - nTrail) / 3);
-    for (let i = 0; i < N - nTrail; i++) {
-      if (i < nWing) sampleTriangle(nose, wingL[0], wingL[1], out, i, 0.012);
-      else if (i < nWing * 2) sampleTriangle(nose, wingR[0], wingR[1], out, i, 0.012);
-      else sampleTriangle(nose, keel[0], keel[1], out, i, 0.012);
+    const W = 2.95, H = 2.35, r = 0.5;
+    const straights = [
+      [[-(W - r), H], [W - r, H]],
+      [[W, H - r], [W, -(H - r)]],
+      [[W - r, -H], [-(W - r), -H]],
+      [[-W, -(H - r)], [-W, H - r]]
+    ];
+    const corners = [
+      [W - r, H - r, 0], [W - r, -(H - r), -Math.PI / 2],
+      [-(W - r), -(H - r), Math.PI], [-(W - r), H - r, Math.PI / 2]
+    ];
+    const nHalo = Math.floor(N * 0.08);
+    const nArc = Math.floor(N * 0.14);
+    const nStraight = N - nHalo - nArc;
+
+    sampleSegments(straights, out, 0, nStraight, 0.045, 0.12);
+    for (let k = 0; k < nArc; k++) {
+      const i = nStraight + k;
+      const c = corners[k % 4];
+      const a = c[2] + Math.random() * Math.PI / 2;
+      out[i * 3] = c[0] + r * Math.cos(a) + gauss(0.045);
+      out[i * 3 + 1] = c[1] + r * Math.sin(a) + gauss(0.045);
+      out[i * 3 + 2] = gauss(0.12);
     }
-    for (let i = N - nTrail; i < N; i++) {
-      const t = Math.random();
-      const x = -1.9 - t * 1.8;
-      out[i * 3] = x;
-      out[i * 3 + 1] = 0.5 + Math.sin(x * 2.4) * 0.18 + gauss(0.025);
-      out[i * 3 + 2] = gauss(0.05);
+    for (let i = N - nHalo; i < N; i++) {   // loose sparkle just outside
+      const a = Math.random() * Math.PI * 2;
+      const rr = 1.12 + Math.random() * 0.25;
+      out[i * 3] = Math.cos(a) * W * rr;
+      out[i * 3 + 1] = Math.sin(a) * H * rr;
+      out[i * 3 + 2] = gauss(0.25);
     }
     return out;
   }
@@ -225,7 +239,7 @@ function init(renderer) {
   }
 
   const browserDir = () => document.documentElement.dir === 'rtl' ? -1 : 1;
-  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapePlane(), shapeStar()];
+  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeFrame(), shapeStar()];
 
   // rebuild the browser shape when the language toggle flips direction
   new MutationObserver(() => {
@@ -388,9 +402,9 @@ function init(renderer) {
     group.scale.set(s, s, s);
 
     const rtl = document.documentElement.dir === 'rtl';
-    // services & reviews swap sides: cards inline-end, particles inline-start
+    // services & reviews swap sides; the contact frame centers on its card
     const flip = (targetIdx === 1 || targetIdx === 5) ? -1 : 1;
-    const tx = isMobile ? 0 : (rtl ? -2.6 : 2.6) * flip;
+    const tx = (isMobile || targetIdx === 4) ? 0 : (rtl ? -2.6 : 2.6) * flip;
     group.position.x += (tx - group.position.x) * (1 - Math.exp(-dt * 2.0));
 
     currentIdx = targetIdx;
