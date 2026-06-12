@@ -114,33 +114,26 @@ function init(renderer) {
     return out;
   }
 
-  function shapeBrowser() {
+  function shapeBrowser(dirSign) {
+    // Empty browser window: frame + toolbar divider + three dots.
+    // dirSign -1 puts the dots on the left (Hebrew), +1 on the right.
     const out = new Float32Array(N * 3);
-    const W = 2.7, H = 1.85, T = 1.3;   // half-width, half-height, toolbar bottom
+    const W = 2.3, H = 1.57, T = 1.1;   // half-width, half-height, toolbar bottom
     const frame = [
       [[-W, H], [W, H]], [[W, H], [W, -H]], [[W, -H], [-W, -H]], [[-W, -H], [-W, H]],
       [[-W, T], [W, T]]
     ];
-    const textLines = [
-      [[2.25, 0.85], [-2.25, 0.85]],
-      [[2.25, 0.35], [-1.5, 0.35]],
-      [[2.25, -0.15], [-2.0, -0.15]],
-      [[2.25, -0.65], [-1.1, -0.65]],
-      [[2.25, -1.15], [-1.8, -1.15]]
-    ];
-    const nFrame = Math.floor(N * 0.42);
-    const nDots = Math.floor(N * 0.06);
-    const nText = N - nFrame - nDots;
+    const nDots = Math.floor(N * 0.07);
+    const nFrame = N - nDots;
 
-    let i = 0;
-    sampleSegments(frame, out, i, nFrame, 0.03, 0.09); i += nFrame;
-    for (let k = 0; k < nDots; k++, i++) {         // window dots, on the right
+    sampleSegments(frame, out, 0, nFrame, 0.03, 0.09);
+    for (let k = 0; k < nDots; k++) {
+      const i = nFrame + k;
       const d = k % 3;
-      out[i * 3] = W - 0.35 - d * 0.3 + gauss(0.05);
-      out[i * 3 + 1] = (H + T) / 2 + gauss(0.05);
+      out[i * 3] = dirSign * (W - 0.32 - d * 0.27) + gauss(0.045);
+      out[i * 3 + 1] = (H + T) / 2 + gauss(0.045);
       out[i * 3 + 2] = gauss(0.06);
     }
-    sampleSegments(textLines, out, i, nText, 0.025, 0.08);
     return out;
   }
 
@@ -217,7 +210,13 @@ function init(renderer) {
     return out;
   }
 
-  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(), shapeRocket(), shapePlane(), shapeStar()];
+  const browserDir = () => document.documentElement.dir === 'rtl' ? -1 : 1;
+  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapePlane(), shapeStar()];
+
+  // rebuild the browser shape when the language toggle flips direction
+  new MutationObserver(() => {
+    shapes[2].set(shapeBrowser(browserDir()));
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['dir'] });
 
   /* ---------- geometry, colors, material ---------- */
 
