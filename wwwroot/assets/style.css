@@ -1,0 +1,450 @@
+/* ===== Einstein Web — "The Genius Formula" =====
+   Dark chalkboard aesthetic: ink navy, chalk white, eureka amber.
+   Logical properties throughout so RTL (he) and LTR (en) both work. */
+
+:root {
+  --ink: #0a0e1a;
+  --ink-2: #111729;
+  --ink-3: #1a2236;
+  --chalk: #eef2fa;
+  --chalk-dim: #a3aec6;
+  --amber: #ffb833;
+  --amber-soft: rgba(255, 184, 51, 0.12);
+  --teal: #5eead4;
+  --line: rgba(238, 242, 250, 0.09);
+  --font-display: 'Suez One', serif;
+  --font-body: 'Assistant', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --radius: 14px;
+  --z-nav: 50;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--chalk);
+  background:
+    radial-gradient(ellipse 900px 600px at 80% -10%, rgba(255, 184, 51, 0.07), transparent 60%),
+    radial-gradient(ellipse 800px 600px at 10% 110%, rgba(94, 234, 212, 0.05), transparent 60%),
+    var(--ink);
+  overflow-x: hidden;
+}
+
+.container {
+  max-width: 72rem;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+::selection { background: var(--amber); color: var(--ink); }
+
+:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ===== Chalk formula background ===== */
+.chalk-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.chalk-layer span {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: clamp(0.9rem, 2vw, 1.4rem);
+  color: rgba(238, 242, 250, 0.05);
+  white-space: nowrap;
+}
+
+main, .nav, .footer { position: relative; z-index: 1; }
+
+/* ===== Navigation ===== */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-nav);
+  background: rgba(10, 14, 26, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-block-end: 1px solid var(--line);
+}
+
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  height: 4.25rem;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  color: var(--chalk);
+}
+
+.logo-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 8px;
+  background: var(--amber);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.logo-text {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  letter-spacing: 0.01em;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.75rem;
+}
+
+.nav-links a {
+  color: var(--chalk-dim);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: color 0.2s ease;
+}
+
+.nav-links a:hover { color: var(--chalk); }
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.lang-toggle {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--chalk-dim);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.4rem 0.7rem;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.lang-toggle:hover { color: var(--amber); border-color: var(--amber); }
+
+/* ===== Buttons ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--ink);
+  background: var(--amber);
+  border: 1px solid var(--amber);
+  border-radius: 10px;
+  padding: 0.8rem 1.9rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn:hover {
+  background: #ffc759;
+  box-shadow: 0 6px 24px rgba(255, 184, 51, 0.25);
+}
+
+.btn-small { padding: 0.5rem 1.1rem; font-size: 0.9rem; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--chalk);
+  border-color: var(--line);
+}
+
+.btn-ghost:hover {
+  background: rgba(238, 242, 250, 0.06);
+  border-color: var(--chalk-dim);
+  box-shadow: none;
+}
+
+.btn-big {
+  font-family: var(--font-mono);
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  padding: 1.1rem 2.4rem;
+  direction: ltr;
+}
+
+/* ===== Type ===== */
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+h1 { font-size: clamp(2.3rem, 5.5vw, 3.8rem); }
+h2 { font-size: clamp(1.7rem, 3.5vw, 2.5rem); margin-block-end: 2.5rem; }
+h3 { font-size: 1.25rem; margin-block-end: 0.5rem; }
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-block-end: 0.9rem;
+}
+
+.lead {
+  font-size: clamp(1.05rem, 2vw, 1.2rem);
+  color: var(--chalk-dim);
+  max-width: 36rem;
+}
+
+.hl {
+  color: var(--amber);
+  position: relative;
+  white-space: nowrap;
+}
+
+.hl::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: -0.08em;
+  height: 0.12em;
+  background: var(--amber);
+  border-radius: 2px;
+  opacity: 0.5;
+}
+
+/* ===== Hero ===== */
+.hero { padding-block: clamp(4rem, 10vw, 7.5rem) clamp(3rem, 8vw, 6rem); }
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  align-items: center;
+  gap: 3rem;
+}
+
+.hero-copy h1 { margin-block-end: 1.4rem; }
+.hero-copy .lead { margin-block-end: 2.2rem; }
+
+.hero-ctas { display: flex; flex-wrap: wrap; gap: 0.9rem; }
+
+.formula-card {
+  background: linear-gradient(160deg, var(--ink-2), var(--ink-3));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 2.5rem 2rem;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+  transform: rotate(-2deg);
+}
+
+.atom {
+  width: 110px;
+  height: 110px;
+  color: var(--teal);
+  margin-block-end: 1.4rem;
+  opacity: 0.85;
+}
+
+.atom-spin {
+  transform-origin: 60px 60px;
+  animation: atom-rotate 60s linear infinite;
+}
+
+@keyframes atom-rotate {
+  to { transform: rotate(360deg); }
+}
+
+.formula {
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 2.5vw, 1.6rem);
+  color: var(--chalk);
+  margin-block-end: 0.6rem;
+}
+
+.formula-note {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--chalk-dim);
+}
+
+/* ===== Sections ===== */
+.section { padding-block: clamp(3.5rem, 8vw, 6rem); }
+
+.section-alt {
+  background: rgba(238, 242, 250, 0.025);
+  border-block: 1px solid var(--line);
+}
+
+/* ===== Service cards ===== */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+}
+
+.card {
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.8rem 1.5rem;
+  transition: border-color 0.25s ease, background-color 0.25s ease;
+}
+
+.card:hover {
+  border-color: rgba(255, 184, 51, 0.45);
+  background: var(--ink-3);
+}
+
+.card-icon {
+  width: 2rem;
+  height: 2rem;
+  color: var(--amber);
+  margin-block-end: 1.1rem;
+}
+
+.card p { color: var(--chalk-dim); font-size: 0.97rem; }
+
+/* ===== Process steps ===== */
+.steps {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  counter-reset: step;
+}
+
+.step {
+  position: relative;
+  padding: 1.6rem 1.4rem;
+  border-inline-start: 2px solid var(--line);
+  transition: border-color 0.25s ease;
+}
+
+.step:hover { border-inline-start-color: var(--amber); }
+
+.step-num {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--amber);
+  margin-block-end: 0.8rem;
+}
+
+.step p { color: var(--chalk-dim); font-size: 0.97rem; }
+
+/* ===== Why us ===== */
+.why-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.5rem;
+}
+
+.why-item h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.why-item h3::before {
+  content: '∴';
+  color: var(--teal);
+  font-size: 1.1em;
+}
+
+.why-item p { color: var(--chalk-dim); }
+
+/* ===== Contact ===== */
+.contact {
+  background:
+    radial-gradient(ellipse 700px 400px at 50% 100%, var(--amber-soft), transparent 70%);
+}
+
+.contact-inner {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.contact h2 { margin-block-end: 1rem; }
+.contact .lead { margin-block-end: 2.4rem; }
+
+/* ===== Footer ===== */
+.footer {
+  border-block-start: 1px solid var(--line);
+  padding-block: 2rem;
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  color: var(--chalk-dim);
+  font-size: 0.9rem;
+}
+
+/* ===== Scroll reveal =====
+   Hidden state applies only once JS adds .js-reveal, so content is
+   always visible without JS (and for crawlers). */
+.js-reveal .reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.js-reveal .reveal.in { opacity: 1; transform: none; }
+
+.js-reveal .d1 { transition-delay: 0.1s; }
+.js-reveal .d2 { transition-delay: 0.2s; }
+.js-reveal .d3 { transition-delay: 0.3s; }
+
+/* ===== Reduced motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .atom-spin { animation: none; }
+  * { transition-duration: 0.01ms !important; }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 64rem) {
+  .cards, .steps { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 48rem) {
+  .nav-links { display: none; }
+  .hero-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+  .hero-visual { max-width: 24rem; margin-inline: auto; }
+  .why-grid { grid-template-columns: 1fr; gap: 1.75rem; }
+}
+
+@media (max-width: 30rem) {
+  .cards, .steps { grid-template-columns: 1fr; }
+  .formula-card { padding: 2rem 1.4rem; }
+}

@@ -1,104 +1,183 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>einstein-web</title>
+  <title data-i18n="meta.title">אינשטיין ווב — סטודיו לעיצוב ופיתוח אתרים</title>
+  <meta name="description" data-i18n-content="meta.desc" content="אינשטיין ווב — סטודיו ישראלי לעיצוב ופיתוח אתרים מהירים, מדויקים ודו־לשוניים. אתר מצליח = רעיון × ביצוע².">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Outfit', sans-serif;
-      background: #fafaf8;
-      color: #18181b;
-      padding: 2rem;
-      position: relative;
-      overflow: hidden;
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      top: -40%;
-      right: -20%;
-      width: 700px;
-      height: 700px;
-      background: radial-gradient(circle, rgba(215, 200, 255, 0.25) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    body::after {
-      content: '';
-      position: fixed;
-      bottom: -30%;
-      left: -15%;
-      width: 600px;
-      height: 600px;
-      background: radial-gradient(circle, rgba(255, 220, 180, 0.2) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .page {
-      position: relative;
-      z-index: 1;
-      text-align: center;
-      max-width: 520px;
-    }
-
-    h1 {
-      font-size: clamp(2rem, 5vw, 3rem);
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      line-height: 1.15;
-      margin-bottom: 1rem;
-    }
-
-    .subtitle {
-      font-size: 1.05rem;
-      font-weight: 300;
-      color: #71717a;
-      line-height: 1.7;
-      max-width: 380px;
-      margin: 0 auto 2.5rem;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #fff;
-      border: 1px solid #e4e4e7;
-      border-radius: 100px;
-      padding: 6px 16px;
-      font-size: 0.75rem;
-      font-weight: 400;
-      color: #71717a;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    }
-
-    .pill .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #a3e635;
-      flex-shrink: 0;
-    }
-  </style>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Suez+One&family=Assistant:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body>
-  <div class="page">
-    <h1>Something great is<br>on its way</h1>
-    <p class="subtitle">We're putting the finishing touches on this site. It'll be ready before you know it.</p>
-    <div class="pill">
-      <span class="dot"></span>
-      In progress
-    </div>
+
+  <!-- Chalk formulas drifting in the background -->
+  <div class="chalk-layer" aria-hidden="true">
+    <span style="top:12%; inset-inline-start:6%; transform:rotate(-8deg)">E = mc²</span>
+    <span style="top:34%; inset-inline-end:4%; transform:rotate(5deg)">∇²ψ + k²ψ = 0</span>
+    <span style="top:58%; inset-inline-start:3%; transform:rotate(4deg)">Δs = c·Δt</span>
+    <span style="top:78%; inset-inline-end:8%; transform:rotate(-6deg)">eⁱᵖ + 1 = 0</span>
+    <span style="top:90%; inset-inline-start:38%; transform:rotate(3deg)">F = ma</span>
+    <span style="top:6%; inset-inline-end:30%; transform:rotate(7deg)">λ = h / p</span>
   </div>
+
+  <header class="nav" id="top">
+    <div class="container nav-inner">
+      <a class="logo" href="#top" aria-label="Einstein Web">
+        <span class="logo-mark" aria-hidden="true">e²</span>
+        <span class="logo-text" data-i18n="brand">אינשטיין ווב</span>
+      </a>
+      <nav class="nav-links" aria-label="Main">
+        <a href="#services" data-i18n="nav.services">שירותים</a>
+        <a href="#process" data-i18n="nav.process">התהליך</a>
+        <a href="#why" data-i18n="nav.why">למה אנחנו</a>
+      </nav>
+      <div class="nav-actions">
+        <button class="lang-toggle" id="langToggle" type="button" aria-label="Switch language">EN</button>
+        <a class="btn btn-small" href="#contact" data-i18n="nav.cta">דברו איתנו</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ===== Hero ===== -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <p class="kicker reveal" data-i18n="hero.kicker">סטודיו לעיצוב ופיתוח אתרים · ישראל</p>
+          <h1 class="reveal d1" data-i18n-html="hero.title">אתר מצליח הוא לא קסם.<br><span class="hl">זאת נוסחה.</span></h1>
+          <p class="lead reveal d2" data-i18n="hero.sub">אינשטיין ווב הוא סטודיו לעיצוב ופיתוח אתרים. אנחנו בונים אתרים מהירים, מדויקים ויפים — בקוד נקי, בעברית ובאנגלית, בלי תבניות מוכנות.</p>
+          <div class="hero-ctas reveal d3">
+            <a class="btn" href="#contact" data-i18n="hero.cta1">בואו נתחיל</a>
+            <a class="btn btn-ghost" href="#services" data-i18n="hero.cta2">מה אנחנו עושים</a>
+          </div>
+        </div>
+        <div class="hero-visual reveal d2" aria-hidden="true">
+          <div class="formula-card">
+            <svg class="atom" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="2">
+              <g class="atom-spin">
+                <ellipse cx="60" cy="60" rx="52" ry="20"/>
+                <ellipse cx="60" cy="60" rx="52" ry="20" transform="rotate(60 60 60)"/>
+                <ellipse cx="60" cy="60" rx="52" ry="20" transform="rotate(120 60 60)"/>
+              </g>
+              <circle cx="60" cy="60" r="6" fill="currentColor" stroke="none"/>
+            </svg>
+            <p class="formula" data-i18n="hero.formula">אתר מצליח = רעיון × ביצוע²</p>
+            <p class="formula-note" data-i18n="hero.formulaNote">— החוק הראשון של אינשטיין ווב</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Services ===== -->
+    <section class="section" id="services">
+      <div class="container">
+        <p class="kicker reveal" data-i18n="services.kicker">השירותים שלנו</p>
+        <h2 class="reveal d1" data-i18n="services.title">כל מה שצריך כדי להצטיין ברשת</h2>
+        <div class="cards">
+          <article class="card reveal">
+            <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42"/>
+            </svg>
+            <h3 data-i18n="s1.title">עיצוב UX/UI</h3>
+            <p data-i18n="s1.desc">אפיון חוויית משתמש ועיצוב ממשק שמרגיש טבעי, נקי ומדויק — בכל מסך ובכל שפה.</p>
+          </article>
+          <article class="card reveal d1">
+            <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"/>
+            </svg>
+            <h3 data-i18n="s2.title">פיתוח אתרים</h3>
+            <p data-i18n="s2.desc">קוד נקי ומהיר שנכתב בדיוק בשבילכם. אתרי תדמית, דפי נחיתה ומערכות מותאמות אישית.</p>
+          </article>
+          <article class="card reveal d2">
+            <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/>
+            </svg>
+            <h3 data-i18n="s3.title">חנויות אונליין</h3>
+            <p data-i18n="s3.desc">חוויית קנייה חלקה שממירה גולשים ללקוחות — קטלוג, סליקה ותפעול פשוט.</p>
+          </article>
+          <article class="card reveal d3">
+            <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/>
+            </svg>
+            <h3 data-i18n="s4.title">ביצועים וקידום</h3>
+            <p data-i18n="s4.desc">מהירות טעינה, נגישות ו-SEO טכני שמקדמים אתכם בגוגל ושומרים על הגולשים.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Process ===== -->
+    <section class="section section-alt" id="process">
+      <div class="container">
+        <p class="kicker reveal" data-i18n="process.kicker">שיטת העבודה</p>
+        <h2 class="reveal d1" data-i18n="process.title">מהשערה להוכחה, בארבעה שלבים</h2>
+        <ol class="steps">
+          <li class="step reveal">
+            <span class="step-num">01</span>
+            <h3 data-i18n="p1.title">השערה</h3>
+            <p data-i18n="p1.desc">פגישת היכרות: מבינים את העסק, המטרות והקהל, ומגדירים יחד מה האתר צריך להשיג.</p>
+          </li>
+          <li class="step reveal d1">
+            <span class="step-num">02</span>
+            <h3 data-i18n="p2.title">ניסוי</h3>
+            <p data-i18n="p2.desc">סקיצות ועיצוב מסכים, עם סבבי משוב מהירים עד שהכיוון מרגיש בדיוק נכון.</p>
+          </li>
+          <li class="step reveal d2">
+            <span class="step-num">03</span>
+            <h3 data-i18n="p3.title">הוכחה</h3>
+            <p data-i18n="p3.desc">פיתוח, בדיקות בכל המכשירים, ביצועים ונגישות — עד שהכול עובד מושלם.</p>
+          </li>
+          <li class="step reveal d3">
+            <span class="step-num">04</span>
+            <h3 data-i18n="p4.title">פרסום</h3>
+            <p data-i18n="p4.desc">עלייה לאוויר, חיבור דומיין ואנליטיקס, וליווי שוטף גם אחרי ההשקה.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== Why us ===== -->
+    <section class="section" id="why">
+      <div class="container">
+        <p class="kicker reveal" data-i18n="why.kicker">למה אינשטיין ווב</p>
+        <h2 class="reveal d1" data-i18n="why.title">עקרונות שלא מתפשרים עליהם</h2>
+        <div class="why-grid">
+          <div class="why-item reveal">
+            <h3 data-i18n="w1.title">מהירות לפני הכול</h3>
+            <p data-i18n="w1.desc">אתרים קלים ומהירים שנטענים מיד. גולשים לא מחכים, וגם גוגל לא.</p>
+          </div>
+          <div class="why-item reveal d1">
+            <h3 data-i18n="w2.title">דו־לשוני באמת</h3>
+            <p data-i18n="w2.desc">עברית ואנגלית, RTL ו-LTR — מעוצבים נכון מהיסוד, לא כתוספת מאולצת.</p>
+          </div>
+          <div class="why-item reveal d2">
+            <h3 data-i18n="w3.title">ליווי אישי</h3>
+            <p data-i18n="w3.desc">קו ישיר למי שבונה את האתר שלכם. בלי מוקדים, בלי תיווך, בלי המתנות.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Contact ===== -->
+    <section class="section contact" id="contact">
+      <div class="container contact-inner">
+        <p class="kicker reveal" data-i18n="contact.kicker">צרו קשר</p>
+        <h2 class="reveal d1" data-i18n="contact.title">יש לכם רעיון? בואו נבדוק את הנוסחה.</h2>
+        <p class="lead reveal d2" data-i18n="contact.sub">ספרו לנו על הפרויקט שלכם ונחזור אליכם תוך יום עסקים.</p>
+        <a class="btn btn-big reveal d3" href="mailto:hello@einstein-web.co.il">hello@einstein-web.co.il</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span class="logo-mark" aria-hidden="true">e²</span>
+      <p><span data-i18n="brand">אינשטיין ווב</span> · © <span id="year">2026</span> · <span data-i18n="footer.rights">כל הזכויות שמורות</span></p>
+    </div>
+  </footer>
+
+  <script src="/assets/main.js"></script>
 </body>
 </html>
