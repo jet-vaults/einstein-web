@@ -256,20 +256,16 @@ function init(renderer) {
       try { data = cx.getImageData(0, 0, w, h).data; } catch (e) { return; }
 
       const pts = [];
-      const handsTop = h * 0.62;   // the clasp area gets 5x density
       for (let y = 0; y < h; y++) {
         for (let x = 0; x < w; x++) {
-          if (data[(y * w + x) * 4] < 128) {
-            pts.push(x, y);
-            if (y > handsTop) { pts.push(x, y, x, y, x, y, x, y); }
-          }
+          if (data[(y * w + x) * 4] < 128) pts.push(x, y);
         }
       }
       if (pts.length < 600) return;
 
       const nPix = pts.length / 2;
-      const s = 5.8 / h;                 // ~5.8 world units tall
-      const cyRow = h * 0.46;            // ring center sits above the hands
+      const s = 4.3 / h;                 // ~4.3 world units tall
+      const cyRow = h * 0.5;
       for (let i = 0; i < N; i++) {
         const j = ((Math.random() * nPix) | 0) * 2;
         target[i * 3] = (pts[j] - w / 2 + Math.random()) * s;
@@ -446,8 +442,8 @@ function init(renderer) {
     geo.attributes.position.needsUpdate = true;
 
     spinMomentum *= Math.exp(-dt * 2.2);
-    // the contact frame stays nearly flat so it tracks the card edges
-    const rotAmp = targetIdx === 4 ? 0.2 : 1;
+    // keep the handshake fairly flat so it stays readable
+    const rotAmp = targetIdx === 4 ? 0.45 : 1;
     group.rotation.y += ((Math.sin(t * 0.1) * 0.16 + mx * 0.3) * rotAmp + spinMomentum - group.rotation.y) * (1 - Math.exp(-dt * 2.5));
     group.rotation.y += spinMomentum * dt * 18;
     group.rotation.x += (my * 0.14 * rotAmp - group.rotation.x) * (1 - Math.exp(-dt * 2.5));
@@ -457,9 +453,9 @@ function init(renderer) {
     group.scale.set(s, s, s);
 
     const rtl = document.documentElement.dir === 'rtl';
-    // services & reviews swap sides; the contact frame centers on its card
+    // services & reviews swap sides: cards inline-end, particles inline-start
     const flip = (targetIdx === 1 || targetIdx === 5) ? -1 : 1;
-    const tx = (isMobile || targetIdx === 4) ? 0 : (rtl ? -2.6 : 2.6) * flip;
+    const tx = isMobile ? 0 : (rtl ? -2.6 : 2.6) * flip;
     group.position.x += (tx - group.position.x) * (1 - Math.exp(-dt * 2.0));
 
     currentIdx = targetIdx;
