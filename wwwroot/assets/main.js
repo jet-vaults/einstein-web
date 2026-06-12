@@ -69,6 +69,10 @@
       'contact.kicker': 'צרו קשר',
       'contact.title': 'בואו נבנה משהו ביחד',
       'contact.sub': 'ספרו לנו על הפרויקט שלכם ונחזור אליכם תוך יום עסקים.',
+      'bm.live': 'אתר חי',
+      'bm.loading': 'טוען את האתר החי…',
+      'bm.fallbackText': 'האתר הזה מעדיף להיפתח במסך מלא.',
+      'bm.fallbackCta': 'פתחו אותו בכרטיסייה חדשה',
       'footer.rights': 'כל הזכויות שמורות'
     },
     en: {
@@ -137,6 +141,10 @@
       'contact.kicker': 'Get in touch',
       'contact.title': 'Let’s build something together',
       'contact.sub': 'Tell us about your project and we’ll get back to you within one business day.',
+      'bm.live': 'Live site',
+      'bm.loading': 'Loading the live website…',
+      'bm.fallbackText': 'This website prefers to open full-screen.',
+      'bm.fallbackCta': 'Open it in a new tab',
       'footer.rights': 'All rights reserved'
     }
   };
@@ -216,6 +224,94 @@
     if (!ticking) { ticking = true; requestAnimationFrame(updateBar); }
   }, { passive: true });
   updateBar();
+
+  /* ===== Browser-in-browser preview ===== */
+  (function () {
+    var modal = document.getElementById('browserModal');
+    if (!modal) return;
+    var bmBody = document.getElementById('bmBody');
+    var bmLoading = document.getElementById('bmLoading');
+    var bmFallback = document.getElementById('bmFallback');
+    var bmDomainText = document.getElementById('bmDomainText');
+    var bmNewTab = document.getElementById('bmNewTab');
+    var bmFallbackLink = document.getElementById('bmFallbackLink');
+    var bmClose = document.getElementById('bmClose');
+
+    var frame = null, loadTimer = null, lastFocus = null, isOpen = false;
+    var LOAD_TIMEOUT = 9000;
+
+    function openPreview(url) {
+      lastFocus = document.activeElement;
+      isOpen = true;
+
+      try { bmDomainText.textContent = new URL(url).hostname; } catch (e) { bmDomainText.textContent = url; }
+      bmNewTab.href = url;
+      bmFallbackLink.href = url;
+
+      bmFallback.hidden = true;
+      bmLoading.hidden = false;
+
+      frame = document.createElement('iframe');
+      frame.title = 'Website preview';
+      frame.addEventListener('load', function () {
+        clearTimeout(loadTimer);
+        bmLoading.hidden = true;
+      });
+      bmBody.appendChild(frame);
+      frame.src = url;
+
+      loadTimer = setTimeout(function () {
+        bmLoading.hidden = true;
+        bmFallback.hidden = false;
+        if (frame) { frame.remove(); frame = null; }
+      }, LOAD_TIMEOUT);
+
+      modal.hidden = false;
+      document.body.classList.add('bm-lock');
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () { modal.classList.add('open'); });
+      });
+      bmClose.focus();
+    }
+
+    function closePreview() {
+      if (!isOpen) return;
+      isOpen = false;
+      clearTimeout(loadTimer);
+      modal.classList.remove('open');
+      document.body.classList.remove('bm-lock');
+      setTimeout(function () {
+        modal.hidden = true;
+        if (frame) { frame.remove(); frame = null; }
+        bmLoading.hidden = true;
+        bmFallback.hidden = true;
+      }, 350);
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+
+    bmClose.addEventListener('click', closePreview);
+    modal.querySelector('[data-bm-close]').addEventListener('click', closePreview);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closePreview();
+    });
+
+    var cardUrls = [];
+    document.querySelectorAll('.project-card').forEach(function (card) {
+      cardUrls.push(card.href);
+      card.addEventListener('click', function (e) {
+        // let modified clicks (new tab, etc.) behave natively
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        e.preventDefault();
+        openPreview(card.href);
+      });
+    });
+
+    // deep link / debug: ?preview=<url> — only URLs that exist as project cards
+    var previewUrl = new URLSearchParams(location.search).get('preview');
+    if (previewUrl && cardUrls.indexOf(previewUrl) !== -1) {
+      window.addEventListener('load', function () { openPreview(previewUrl); });
+    }
+  })();
 
   /* ===== Count-up stats ===== */
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
