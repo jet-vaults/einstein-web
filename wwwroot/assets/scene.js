@@ -79,7 +79,7 @@ function init(renderer) {
 
   function shapeAtom() {
     const out = new Float32Array(N * 3);
-    const nRing = Math.floor(N * 0.64), nNuc = Math.floor(N * 0.13);
+    const nRing = Math.floor(N * 0.71), nNuc = Math.floor(N * 0.13);
     for (let i = 0; i < nRing; i++) {
       const k = i % 3;
       const t = Math.random() * Math.PI * 2;
@@ -99,9 +99,9 @@ function init(renderer) {
     for (let i = start; i < N; i++) {
       const k = (i - start) % 3;
       const j = i - start;
-      ri[j] = 0.04 + Math.random() * 0.12;
+      ri[j] = 0.07 + Math.random() * 0.21;
       phi[j] = Math.random() * Math.PI * 2;
-      zi[j] = gauss(0.05);
+      zi[j] = gauss(0.09);
       const e = electronPos(k, k * 2.1 + 0.7);
       out[i * 3] = e[0] + ri[j] * Math.cos(phi[j]);
       out[i * 3 + 1] = e[1] + ri[j] * Math.sin(phi[j]);
@@ -358,9 +358,9 @@ function init(renderer) {
       for (let i = start; i < N; i++) {
         const ring = (i - start) % 3;
         const j = i - start;
-        const a = ring * 2.1 + 0.7 + t * (0.22 + ring * 0.07);
+        const a = ring * 2.1 + 0.7 + t * (0.12 + ring * 0.04);
         const e = electronPos(ring, a);
-        const spin = phi[j] + t * (1.3 + ring * 0.25);
+        const spin = phi[j] + t * (0.5 + ring * 0.12);
         target[i * 3] = e[0] + ri[j] * Math.cos(spin);
         target[i * 3 + 1] = e[1] + ri[j] * Math.sin(spin);
         target[i * 3 + 2] = e[2] + zi[j];
