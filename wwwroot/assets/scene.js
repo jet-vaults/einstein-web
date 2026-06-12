@@ -94,17 +94,20 @@ function init(renderer) {
       out[i * 3 + 2] = gauss(0.24);
     }
     const start = nRing + nNuc;
-    const jit = new Float32Array((N - start) * 3);
+    const nEl = N - start;
+    const ri = new Float32Array(nEl), phi = new Float32Array(nEl), zi = new Float32Array(nEl);
     for (let i = start; i < N; i++) {
       const k = (i - start) % 3;
-      const j = (i - start) * 3;
-      jit[j] = gauss(0.11); jit[j + 1] = gauss(0.11); jit[j + 2] = gauss(0.11);
+      const j = i - start;
+      ri[j] = 0.04 + Math.random() * 0.12;
+      phi[j] = Math.random() * Math.PI * 2;
+      zi[j] = gauss(0.05);
       const e = electronPos(k, k * 2.1 + 0.7);
-      out[i * 3] = e[0] + jit[j];
-      out[i * 3 + 1] = e[1] + jit[j + 1];
-      out[i * 3 + 2] = e[2] + jit[j + 2];
+      out[i * 3] = e[0] + ri[j] * Math.cos(phi[j]);
+      out[i * 3 + 1] = e[1] + ri[j] * Math.sin(phi[j]);
+      out[i * 3 + 2] = e[2] + zi[j];
     }
-    atomElectrons = { start, jit };
+    atomElectrons = { start, ri, phi, zi };
     return out;
   }
 
@@ -349,17 +352,18 @@ function init(renderer) {
     const target = shapes[targetIdx];
     const k = 1 - Math.exp(-dt * 3.4);
 
-    // electrons orbit the nucleus while the atom is the active shape
+    // electrons orbit the nucleus slowly, and each blob swirls around itself
     if (targetIdx === 0 && atomElectrons) {
-      const { start, jit } = atomElectrons;
+      const { start, ri, phi, zi } = atomElectrons;
       for (let i = start; i < N; i++) {
         const ring = (i - start) % 3;
-        const a = ring * 2.1 + 0.7 + t * (0.55 + ring * 0.18);
+        const j = i - start;
+        const a = ring * 2.1 + 0.7 + t * (0.22 + ring * 0.07);
         const e = electronPos(ring, a);
-        const j = (i - start) * 3;
-        target[i * 3] = e[0] + jit[j];
-        target[i * 3 + 1] = e[1] + jit[j + 1];
-        target[i * 3 + 2] = e[2] + jit[j + 2];
+        const spin = phi[j] + t * (1.3 + ring * 0.25);
+        target[i * 3] = e[0] + ri[j] * Math.cos(spin);
+        target[i * 3 + 1] = e[1] + ri[j] * Math.sin(spin);
+        target[i * 3 + 2] = e[2] + zi[j];
       }
     }
 
