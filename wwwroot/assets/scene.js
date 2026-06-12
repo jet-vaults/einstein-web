@@ -223,21 +223,7 @@ function init(renderer) {
       verts.push([rad * Math.cos(ang), rad * Math.sin(ang)]);
     }
     const segs = verts.map((v, k) => [v, verts[(k + 1) % 10]]);
-    const nOutline = Math.floor(N * 0.62);
-    const nGlow = Math.floor(N * 0.14);
-    sampleSegments(segs, out, 0, nOutline, 0.035, 0.12);
-    for (let i = nOutline; i < nOutline + nGlow; i++) {   // center sparkle
-      out[i * 3] = gauss(0.32);
-      out[i * 3 + 1] = gauss(0.32) + 0.1;
-      out[i * 3 + 2] = gauss(0.2);
-    }
-    for (let i = nOutline + nGlow; i < N; i++) {          // inner fill, sparse
-      const t = Math.random() * Math.PI * 2;
-      const rr = Math.sqrt(Math.random()) * r * 0.92;
-      out[i * 3] = rr * Math.cos(t);
-      out[i * 3 + 1] = rr * Math.sin(t) + 0.1;
-      out[i * 3 + 2] = gauss(0.15);
-    }
+    sampleSegments(segs, out, 0, N, 0.045, 0.12);
     return out;
   }
 
