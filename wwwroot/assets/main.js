@@ -79,7 +79,9 @@
       'bm.loading': 'טוען את האתר החי…',
       'bm.fallbackText': 'האתר הזה מעדיף להיפתח במסך מלא.',
       'bm.fallbackCta': 'פתחו אותו בכרטיסייה חדשה',
-      'footer.rights': 'כל הזכויות שמורות'
+      'footer.rights': 'כל הזכויות שמורות',
+      'footer.accessibility': 'הצהרת נגישות',
+      'footer.privacy': 'מדיניות פרטיות'
     },
     en: {
       'meta.title': 'Einstein Web - Web Development & Digital Experiences',
@@ -157,7 +159,9 @@
       'bm.loading': 'Loading the live website…',
       'bm.fallbackText': 'This website prefers to open full-screen.',
       'bm.fallbackCta': 'Open it in a new tab',
-      'footer.rights': 'All rights reserved'
+      'footer.rights': 'All rights reserved',
+      'footer.accessibility': 'Accessibility statement',
+      'footer.privacy': 'Privacy policy'
     }
   };
 
