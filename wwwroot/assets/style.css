@@ -575,6 +575,8 @@ h3 { font-size: 1.2rem; margin-block-end: 0.35rem; }
   padding: clamp(0.5rem, 3vw, 2.5rem);
 }
 
+.browser-modal[hidden] { display: none; }
+
 .bm-backdrop {
   position: absolute;
   inset: 0;
