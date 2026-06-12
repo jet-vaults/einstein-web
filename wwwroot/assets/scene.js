@@ -209,44 +209,33 @@ function init(renderer) {
     return out;
   }
 
-  function shapePeople() {
-    // three filled person silhouettes - one per team member
+  // the contact ring pulled apart into two flowing halves that frame
+  // the centered team section; particles stream along each arc
+  let splitData = null;
+
+  function splitPos(i, out) {
+    const { side, ang, rr, zz } = splitData;
+    const x = side[i] * 3.55 + Math.cos(ang[i]) * 1.0 * rr[i];
+    const y = Math.sin(ang[i]) * 2.5 * rr[i];
+    out[i * 3] = x;
+    out[i * 3 + 1] = y;
+    out[i * 3 + 2] = zz[i];
+  }
+
+  function shapeSplit() {
     const out = new Float32Array(N * 3);
-    let i = 0;
-
-    function person(cx, headY, headR, bodyW, shoulderY, bottomY, count) {
-      const headArea = Math.PI * headR * headR;
-      const domeArea = Math.PI * bodyW * bodyW * 0.7 / 2;
-      const rectArea = 2 * bodyW * (shoulderY - bottomY);
-      const total = headArea + domeArea + rectArea;
-      for (let k = 0; k < count; k++, i++) {
-        const pick = Math.random() * total;
-        let x, y;
-        if (pick < headArea) {                 // head disk
-          const a = Math.random() * Math.PI * 2;
-          const r = headR * Math.sqrt(Math.random());
-          x = cx + r * Math.cos(a);
-          y = headY + r * Math.sin(a);
-        } else if (pick < headArea + domeArea) { // shoulder dome
-          const a = Math.random() * Math.PI;
-          const r = bodyW * Math.sqrt(Math.random());
-          x = cx + r * Math.cos(a);
-          y = shoulderY + r * Math.sin(a) * 0.7;
-        } else {                                // torso
-          x = cx + (Math.random() * 2 - 1) * bodyW;
-          y = bottomY + Math.random() * (shoulderY - bottomY);
-        }
-        out[i * 3] = x + gauss(0.02);
-        out[i * 3 + 1] = y + gauss(0.02);
-        out[i * 3 + 2] = gauss(0.08);
-      }
+    const side = new Int8Array(N), ang = new Float32Array(N);
+    const rr = new Float32Array(N), zz = new Float32Array(N);
+    for (let i = 0; i < N; i++) {
+      side[i] = i % 2 === 0 ? -1 : 1;
+      // left half: angles facing outward-left; right half mirrored
+      const t = Math.PI / 2 + Math.random() * Math.PI;
+      ang[i] = side[i] === -1 ? t : Math.PI - t;
+      rr[i] = 1 + gauss(0.05);
+      zz[i] = gauss(0.1);
     }
-
-    const nMid = Math.floor(N * 0.4);
-    const nSide = Math.floor(N * 0.3);
-    person(-1.55, 0.85, 0.45, 0.72, -0.25, -1.7, nSide);
-    person(0, 1.15, 0.52, 0.82, -0.05, -1.7, nMid);
-    person(1.55, 0.85, 0.45, 0.72, -0.25, -1.7, N - i);
+    splitData = { side, ang, rr, zz };
+    for (let i = 0; i < N; i++) splitPos(i, out);
     return out;
   }
 
@@ -265,7 +254,7 @@ function init(renderer) {
   }
 
   const browserDir = () => document.documentElement.dir === 'rtl' ? -1 : 1;
-  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeRing(), shapeStar(), shapePeople()];
+  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeRing(), shapeStar(), shapeSplit()];
 
   /* Ring-with-handshake for the contact section: dense sampling of the
      silhouette mask, hands at 6x so the clasp is clearly readable. */
@@ -440,6 +429,25 @@ function init(renderer) {
     const target = shapes[targetIdx];
     const k = 1 - Math.exp(-dt * 3.4);
 
+    // team section: particles stream along the two half-rings
+    if (targetIdx === 6 && splitData) {
+      const flow = dt * 0.16;
+      for (let i = 0; i < N; i++) {
+        const sgn = splitData.side[i] === -1 ? 1 : -1;
+        let a = splitData.ang[i] + sgn * flow;
+        // wrap within each half-arc so the stream is continuous
+        if (splitData.side[i] === -1) {
+          if (a > Math.PI * 1.5) a -= Math.PI;
+          if (a < Math.PI * 0.5) a += Math.PI;
+        } else {
+          if (a < -Math.PI * 0.5) a += Math.PI;
+          if (a > Math.PI * 0.5) a -= Math.PI;
+        }
+        splitData.ang[i] = a;
+        splitPos(i, shapes[6]);
+      }
+    }
+
     // electrons orbit the nucleus slowly, and each blob swirls around itself
     if (targetIdx === 0 && atomElectrons) {
       const { start, ri, phi, zi } = atomElectrons;
@@ -471,8 +479,8 @@ function init(renderer) {
     geo.attributes.position.needsUpdate = true;
 
     spinMomentum *= Math.exp(-dt * 2.2);
-    // the contact ring stays nearly flat so it tracks the card
-    const rotAmp = targetIdx === 4 ? 0.2 : 1;
+    // the contact ring and team split stay nearly flat
+    const rotAmp = (targetIdx === 4 || targetIdx === 6) ? 0.2 : 1;
     group.rotation.y += ((Math.sin(t * 0.1) * 0.16 + mx * 0.3) * rotAmp + spinMomentum - group.rotation.y) * (1 - Math.exp(-dt * 2.5));
     group.rotation.y += spinMomentum * dt * 18;
     group.rotation.x += (my * 0.14 * rotAmp - group.rotation.x) * (1 - Math.exp(-dt * 2.5));
@@ -482,9 +490,10 @@ function init(renderer) {
     group.scale.set(s, s, s);
 
     const rtl = document.documentElement.dir === 'rtl';
-    // services & reviews swap sides; the contact ring centers on its card
+    // services & reviews swap sides; team split and contact ring center
     const flip = (targetIdx === 1 || targetIdx === 5) ? -1 : 1;
-    const tx = (isMobile || targetIdx === 4) ? 0 : (rtl ? -2.6 : 2.6) * flip;
+    const centered = targetIdx === 4 || targetIdx === 6;
+    const tx = (isMobile || centered) ? 0 : (rtl ? -2.6 : 2.6) * flip;
     group.position.x += (tx - group.position.x) * (1 - Math.exp(-dt * 2.0));
 
     currentIdx = targetIdx;
