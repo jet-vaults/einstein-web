@@ -189,8 +189,9 @@ function init(renderer) {
 
   function shapeFrame() {
     // rounded-rect halo that hugs the contact card: "let's build together"
+    // card measures ~608x570px => ~2.24x2.10 world units at z=8
     const out = new Float32Array(N * 3);
-    const W = 2.95, H = 2.35, r = 0.5;
+    const W = 2.5, H = 2.36, r = 0.45;
     const straights = [
       [[-(W - r), H], [W - r, H]],
       [[W, H - r], [W, -(H - r)]],
@@ -393,9 +394,11 @@ function init(renderer) {
     geo.attributes.position.needsUpdate = true;
 
     spinMomentum *= Math.exp(-dt * 2.2);
-    group.rotation.y += (Math.sin(t * 0.1) * 0.16 + mx * 0.3 + spinMomentum - group.rotation.y) * (1 - Math.exp(-dt * 2.5));
+    // the contact frame stays nearly flat so it tracks the card edges
+    const rotAmp = targetIdx === 4 ? 0.2 : 1;
+    group.rotation.y += ((Math.sin(t * 0.1) * 0.16 + mx * 0.3) * rotAmp + spinMomentum - group.rotation.y) * (1 - Math.exp(-dt * 2.5));
     group.rotation.y += spinMomentum * dt * 18;
-    group.rotation.x += (my * 0.14 - group.rotation.x) * (1 - Math.exp(-dt * 2.5));
+    group.rotation.x += (my * 0.14 * rotAmp - group.rotation.x) * (1 - Math.exp(-dt * 2.5));
 
     scale += (1 - scale) * (1 - Math.exp(-dt * 3.0));
     const s = scale * (isMobile ? 0.8 : 1);
