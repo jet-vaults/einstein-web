@@ -4,8 +4,8 @@
   /* ===== Translations ===== */
   var I18N = {
     he: {
-      'meta.title': 'איינשטיין אתרים — פיתוח אתרים וחוויות דיגיטליות',
-      'meta.desc': 'איינשטיין אתרים — חברה לפיתוח אתרים מהירים ומרשימים לעסקים ולפרויקטים של נדל״ן. עברית ואנגלית, עיצוב מוקפד וביצועים בלתי מתפשרים.',
+      'meta.title': 'איינשטיין אתרים - פיתוח אתרים וחוויות דיגיטליות',
+      'meta.desc': 'איינשטיין אתרים - חברה לפיתוח אתרים מהירים ומרשימים לעסקים ולפרויקטים של נדל״ן. עברית ואנגלית, עיצוב מוקפד וביצועים בלתי מתפשרים.',
       'brand': 'איינשטיין אתרים',
       'nav.services': 'שירותים',
       'nav.projects': 'פרויקטים',
@@ -18,7 +18,7 @@
       'clients.title': 'עובדים עם החברות המובילות בישראל',
       'reviews.kicker': 'המלצות',
       'reviews.title': 'לקוחות מספרים',
-      'r1.text': 'פנינו לאיינשטיין אתרים לבניית אתר למשרד עורכי דין מוביל — הבחירה הטובה ביותר שיכולנו לעשות. סטנדרטים גבוהים, עיצוב יפהפה וממשק פשוט ונגיש. עברו את כל הציפיות.',
+      'r1.text': 'פנינו לאיינשטיין אתרים לבניית אתר למשרד עורכי דין מוביל - הבחירה הטובה ביותר שיכולנו לעשות. סטנדרטים גבוהים, עיצוב יפהפה וממשק פשוט ונגיש. עברו את כל הציפיות.',
       'r1.who': 'משרד עורכי דין',
       'r2.text': 'בנו לנו אתר מכירות אונליין ולא הצטערנו לרגע. תוצאה מדהימה, הצגה מעולה ותחושה של מקצועיות ואמינות לכל אורך הדרך.',
       'r2.who': 'בעלת חנות אונליין',
@@ -27,7 +27,7 @@
       'reviews.more': 'לכל הביקורות שלנו באיזי ←',
       'hero.kicker': 'חברה לפיתוח אתרים',
       'hero.title': 'בונים אתרים.<br><span class="hl">יוצרים חוויות.</span>',
-      'hero.sub': 'איינשטיין אתרים מתמחה באתרים מהירים ומרשימים לעסקים ולפרויקטים של נדל״ן. בלי תבניות, בלי פשרות — גללו למטה ותראו בעצמכם.',
+      'hero.sub': 'איינשטיין אתרים מתמחה באתרים מהירים ומרשימים לעסקים ולפרויקטים של נדל״ן. בלי תבניות, בלי פשרות - גללו למטה ותראו בעצמכם.',
       'hero.cta1': 'לפרויקטים שלנו',
       'hero.cta2': 'בואו נדבר',
       'hero.scroll': 'גללו',
@@ -36,14 +36,14 @@
       's1.title': 'אתרי תדמית',
       's1.desc': 'אתרים מהירים ומדויקים שמציגים את העסק שלכם בצורה הכי טובה שיש.',
       's2.title': 'נדל״ן ופרויקטים',
-      's2.desc': 'אתרי שיווק לפרויקטים של נדל״ן — מהדמיות ועד טפסי לידים, הכול מחובר.',
+      's2.desc': 'אתרי שיווק לפרויקטים של נדל״ן - מהדמיות ועד טפסי לידים, הכול מחובר.',
       's3.title': 'דפי נחיתה',
       's3.desc': 'עמודים ממוקדי המרה לקמפיינים, עם טעינה מיידית בכל מכשיר.',
       's4.title': 'ביצועים ו-SEO',
       's4.desc': 'מהירות, נגישות וקידום טכני שמרימים אתכם בגוגל ומשאירים את הגולשים.',
       'projects.kicker': 'תיק עבודות',
       'projects.title': 'פרויקטים שעלו לאוויר',
-      'projects.sub': 'חלק מהאתרים שבנינו ללקוחות שלנו — והרשימה ממשיכה לגדול.',
+      'projects.sub': 'חלק מהאתרים שבנינו ללקוחות שלנו - והרשימה ממשיכה לגדול.',
       'pr1.title': 'שיכון ובינוי',
       'pr1.tag': 'נדל״ן · מחיר למשתכן',
       'pr2.title': 'Home in Israel',
@@ -59,13 +59,13 @@
       'process.kicker': 'איך זה עובד',
       'process.title': 'מרעיון לשיגור בארבעה שלבים',
       'p1.title': 'אפיון',
-      'p1.desc': 'מבינים את העסק, המטרות והקהל — ובונים תוכנית מדויקת.',
+      'p1.desc': 'מבינים את העסק, המטרות והקהל - ובונים תוכנית מדויקת.',
       'p2.title': 'עיצוב',
       'p2.desc': 'סקיצות חיות וסבבי משוב מהירים, עד שזה מרגיש בדיוק נכון.',
       'p3.title': 'פיתוח',
       'p3.desc': 'קוד נקי, בדיקות בכל מכשיר, ביצועים ונגישות ללא פשרות.',
       'p4.title': 'שיגור',
-      'p4.desc': 'עלייה לאוויר, חיבור דומיין ואנליטיקס — וליווי שוטף גם אחרי.',
+      'p4.desc': 'עלייה לאוויר, חיבור דומיין ואנליטיקס - וליווי שוטף גם אחרי.',
       'contact.kicker': 'צרו קשר',
       'contact.title': 'בואו נבנה משהו ביחד',
       'contact.sub': 'ספרו לנו על הפרויקט שלכם ונחזור אליכם תוך יום עסקים.',
@@ -76,8 +76,8 @@
       'footer.rights': 'כל הזכויות שמורות'
     },
     en: {
-      'meta.title': 'Einstein Web — Web Development & Digital Experiences',
-      'meta.desc': 'Einstein Web — a company building fast, striking websites for businesses and real-estate projects. Hebrew and English, meticulous design, uncompromising performance.',
+      'meta.title': 'Einstein Web - Web Development & Digital Experiences',
+      'meta.desc': 'Einstein Web - a company building fast, striking websites for businesses and real-estate projects. Hebrew and English, meticulous design, uncompromising performance.',
       'brand': 'Einstein Web',
       'nav.services': 'Services',
       'nav.projects': 'Projects',
@@ -90,7 +90,7 @@
       'clients.title': 'Working with Israel’s leading companies',
       'reviews.kicker': 'Testimonials',
       'reviews.title': 'What clients say',
-      'r1.text': 'We came to Einstein Web to build a website for a leading law firm — the best choice we could have made. High standards, beautiful design and a simple, accessible interface. They exceeded every expectation.',
+      'r1.text': 'We came to Einstein Web to build a website for a leading law firm - the best choice we could have made. High standards, beautiful design and a simple, accessible interface. They exceeded every expectation.',
       'r1.who': 'Law firm',
       'r2.text': 'They built our online store and we never regretted it for a moment. An amazing result, excellent presentation, and a feeling of professionalism and reliability all the way through.',
       'r2.who': 'Online store owner',
@@ -99,7 +99,7 @@
       'reviews.more': 'See all our reviews on Easy →',
       'hero.kicker': 'Web development company',
       'hero.title': 'We build websites.<br><span class="hl">We craft experiences.</span>',
-      'hero.sub': 'Einstein Web builds fast, striking websites for businesses and real-estate projects. No templates, no compromises — scroll down and see for yourself.',
+      'hero.sub': 'Einstein Web builds fast, striking websites for businesses and real-estate projects. No templates, no compromises - scroll down and see for yourself.',
       'hero.cta1': 'See our projects',
       'hero.cta2': 'Let’s talk',
       'hero.scroll': 'Scroll',
@@ -108,14 +108,14 @@
       's1.title': 'Brand Websites',
       's1.desc': 'Fast, precise websites that present your business at its very best.',
       's2.title': 'Real-Estate Projects',
-      's2.desc': 'Marketing sites for real-estate developments — from renders to lead forms, all connected.',
+      's2.desc': 'Marketing sites for real-estate developments - from renders to lead forms, all connected.',
       's3.title': 'Landing Pages',
       's3.desc': 'Conversion-focused pages for campaigns, loading instantly on every device.',
       's4.title': 'Performance & SEO',
       's4.desc': 'Speed, accessibility and technical SEO that lift you on Google and keep visitors around.',
       'projects.kicker': 'Our work',
       'projects.title': 'Projects we shipped',
-      'projects.sub': 'A few of the websites we built for our clients — and the list keeps growing.',
+      'projects.sub': 'A few of the websites we built for our clients - and the list keeps growing.',
       'pr1.title': 'Shikun & Binui',
       'pr1.tag': 'Real estate · Mehir LaMishtaken',
       'pr2.title': 'Home in Israel',
@@ -131,13 +131,13 @@
       'process.kicker': 'How it works',
       'process.title': 'From idea to launch in four steps',
       'p1.title': 'Discovery',
-      'p1.desc': 'We learn the business, goals and audience — and build a precise plan.',
+      'p1.desc': 'We learn the business, goals and audience - and build a precise plan.',
       'p2.title': 'Design',
       'p2.desc': 'Live sketches and quick feedback rounds, until it feels exactly right.',
       'p3.title': 'Development',
       'p3.desc': 'Clean code, testing on every device, performance and accessibility without compromise.',
       'p4.title': 'Launch',
-      'p4.desc': 'Going live, domain and analytics setup — and ongoing support after.',
+      'p4.desc': 'Going live, domain and analytics setup - and ongoing support after.',
       'contact.kicker': 'Get in touch',
       'contact.title': 'Let’s build something together',
       'contact.sub': 'Tell us about your project and we’ll get back to you within one business day.',
@@ -241,7 +241,7 @@
     var DESKTOP_VIEWPORT = 1280;
 
     /* Render the site at full desktop width, scaled to fit the popup,
-       so it always looks proportional — like a live screenshot. */
+       so it always looks proportional - like a live screenshot. */
     function fitFrame() {
       if (!frame) return;
       if (window.innerWidth < 768) {
@@ -280,7 +280,7 @@
       bmBody.appendChild(frame);
       frame.src = url;
 
-      // heavy sites paint long before their load event — drop the
+      // heavy sites paint long before their load event - drop the
       // spinner after a few seconds and let the site show through
       loadTimer = setTimeout(function () {
         bmLoading.hidden = true;
@@ -288,12 +288,9 @@
 
       modal.hidden = false;
       document.body.classList.add('bm-lock');
-      requestAnimationFrame(function () {
-        requestAnimationFrame(function () {
-          modal.classList.add('open');
-          fitFrame();
-        });
-      });
+      void modal.offsetHeight; // force reflow so the open transition runs
+      modal.classList.add('open');
+      fitFrame();
       bmClose.focus();
     }
 
@@ -329,7 +326,7 @@
       });
     });
 
-    // deep link / debug: ?preview=<url> — only URLs that exist as project cards
+    // deep link / debug: ?preview=<url> - only URLs that exist as project cards
     var previewUrl = new URLSearchParams(location.search).get('preview');
     if (previewUrl && cardUrls.indexOf(previewUrl) !== -1) {
       window.addEventListener('load', function () { openPreview(previewUrl); });
