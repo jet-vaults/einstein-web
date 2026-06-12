@@ -238,7 +238,6 @@
     var bmClose = document.getElementById('bmClose');
 
     var frame = null, loadTimer = null, lastFocus = null, isOpen = false;
-    var LOAD_TIMEOUT = 20000;
     var DESKTOP_VIEWPORT = 1280;
 
     /* Render the site at full desktop width, scaled to fit the popup,
@@ -275,19 +274,17 @@
       frame = document.createElement('iframe');
       frame.title = 'Website preview';
       frame.addEventListener('load', function () {
-        // site arrived (even if late) — show it
         clearTimeout(loadTimer);
         bmLoading.hidden = true;
-        bmFallback.hidden = true;
       });
       bmBody.appendChild(frame);
       frame.src = url;
 
-      // slow site: offer the new-tab escape hatch but keep loading behind
+      // heavy sites paint long before their load event — drop the
+      // spinner after a few seconds and let the site show through
       loadTimer = setTimeout(function () {
         bmLoading.hidden = true;
-        bmFallback.hidden = false;
-      }, LOAD_TIMEOUT);
+      }, 4000);
 
       modal.hidden = false;
       document.body.classList.add('bm-lock');
