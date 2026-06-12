@@ -871,7 +871,14 @@ html.a11y-contrast {
 
 html.a11y-contrast body { background: #fff; }
 
-html.a11y-grayscale body { filter: grayscale(1); }
+/* filter the page containers, never body: a filter on body re-anchors
+   all fixed-position elements and throws them off-screen */
+html.a11y-grayscale main,
+html.a11y-grayscale .nav,
+html.a11y-grayscale .footer,
+html.a11y-grayscale #scene,
+html.a11y-grayscale .scroll-progress,
+html.a11y-grayscale .browser-modal { filter: grayscale(1); }
 
 html.a11y-links a { text-decoration: underline !important; }
 
