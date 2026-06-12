@@ -210,6 +210,52 @@ function init(renderer) {
 
   const shapes = [shapeAtom(), shapeCode(), shapeCity(), shapeRocket(), shapePlane()];
 
+  /* Einstein particle sketch: sample the precomputed Sobel edge map of
+     the public-domain portrait into shape slot 2, replacing the skyline
+     once loaded. Stronger edges attract more particles and sit slightly
+     closer to the camera. */
+  (function loadEinsteinShape(target) {
+    const img = new Image();
+    img.onload = function () {
+      const w = img.naturalWidth, h = img.naturalHeight;
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      const cx = c.getContext('2d');
+      cx.drawImage(img, 0, 0);
+      let data;
+      try { data = cx.getImageData(0, 0, w, h).data; } catch (e) { return; }
+
+      const pts = [];
+      let maxW = 0;
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          const lum = data[(y * w + x) * 4] / 255;
+          if (lum > 0.3) {
+            const wt = lum * lum;
+            pts.push(x, y, wt);
+            if (wt > maxW) maxW = wt;
+          }
+        }
+      }
+      if (pts.length < 300 || maxW <= 0) return;
+
+      const nPix = pts.length / 3;
+      const scale = 4.6 / Math.max(w, h);
+      for (let i = 0; i < N; i++) {
+        let j = ((Math.random() * nPix) | 0) * 3;
+        for (let tries = 0; tries < 40; tries++) {
+          j = ((Math.random() * nPix) | 0) * 3;
+          if (Math.random() < pts[j + 2] / maxW) break;
+        }
+        target[i * 3] = (pts[j] - w / 2 + Math.random()) * scale;
+        target[i * 3 + 1] = (h / 2 - pts[j + 1] + Math.random()) * scale - 0.2;
+        target[i * 3 + 2] = Math.sqrt(pts[j + 2]) * 0.3 + gauss(0.06);
+      }
+      if (isForced && targetIdx === 2) base.set(target);
+    };
+    img.src = '/assets/einstein-edges.png';
+  })(shapes[2]);
+
   /* ---------- geometry, colors, material ---------- */
 
   const base = new Float32Array(shapes[0]);          // morphing positions
