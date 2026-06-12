@@ -70,10 +70,16 @@ function init(renderer) {
     }
   }
 
+  // electron particles are animated along their rings in the render loop
+  let atomElectrons = null;
+
+  function electronPos(k, angle) {
+    return rotXZ([2.7 * Math.cos(angle), 1.05 * Math.sin(angle), 0], (k - 1) * 0.55, k * Math.PI / 3 + 0.5);
+  }
+
   function shapeAtom() {
     const out = new Float32Array(N * 3);
     const nRing = Math.floor(N * 0.64), nNuc = Math.floor(N * 0.13);
-    const nEl = N - nRing - nNuc;
     for (let i = 0; i < nRing; i++) {
       const k = i % 3;
       const t = Math.random() * Math.PI * 2;
@@ -87,13 +93,18 @@ function init(renderer) {
       out[i * 3 + 1] = gauss(0.24);
       out[i * 3 + 2] = gauss(0.24);
     }
-    for (let i = nRing + nNuc; i < N; i++) {
-      const k = (i - nRing - nNuc) % 3;
-      const e = rotXZ([2.7 * Math.cos(k * 2.1 + 0.7), 1.05 * Math.sin(k * 2.1 + 0.7), 0], (k - 1) * 0.55, k * Math.PI / 3 + 0.5);
-      out[i * 3] = e[0] + gauss(0.11);
-      out[i * 3 + 1] = e[1] + gauss(0.11);
-      out[i * 3 + 2] = e[2] + gauss(0.11);
+    const start = nRing + nNuc;
+    const jit = new Float32Array((N - start) * 3);
+    for (let i = start; i < N; i++) {
+      const k = (i - start) % 3;
+      const j = (i - start) * 3;
+      jit[j] = gauss(0.11); jit[j + 1] = gauss(0.11); jit[j + 2] = gauss(0.11);
+      const e = electronPos(k, k * 2.1 + 0.7);
+      out[i * 3] = e[0] + jit[j];
+      out[i * 3 + 1] = e[1] + jit[j + 1];
+      out[i * 3 + 2] = e[2] + jit[j + 2];
     }
+    atomElectrons = { start, jit };
     return out;
   }
 
@@ -313,7 +324,7 @@ function init(renderer) {
 
   /* ---------- render loop ---------- */
 
-  group.position.x = isMobile ? 0 : (document.documentElement.dir === 'rtl' ? -2.6 : 2.6);
+  group.position.x = (isMobile ? 0 : (document.documentElement.dir === 'rtl' ? -2.6 : 2.6)) * (targetIdx === 1 ? -1 : 1);
 
   const clock = new THREE.Clock();
   let running = true;
@@ -338,6 +349,20 @@ function init(renderer) {
     const target = shapes[targetIdx];
     const k = 1 - Math.exp(-dt * 3.4);
 
+    // electrons orbit the nucleus while the atom is the active shape
+    if (targetIdx === 0 && atomElectrons) {
+      const { start, jit } = atomElectrons;
+      for (let i = start; i < N; i++) {
+        const ring = (i - start) % 3;
+        const a = ring * 2.1 + 0.7 + t * (0.55 + ring * 0.18);
+        const e = electronPos(ring, a);
+        const j = (i - start) * 3;
+        target[i * 3] = e[0] + jit[j];
+        target[i * 3 + 1] = e[1] + jit[j + 1];
+        target[i * 3 + 2] = e[2] + jit[j + 2];
+      }
+    }
+
     for (let i = 0; i < N * 3; i++) base[i] += (target[i] - base[i]) * k;
 
     const amp = 0.024;
@@ -359,7 +384,9 @@ function init(renderer) {
     group.scale.set(s, s, s);
 
     const rtl = document.documentElement.dir === 'rtl';
-    const tx = isMobile ? 0 : (rtl ? -2.6 : 2.6);
+    // services section swaps sides: card inline-end, particles inline-start
+    const flip = targetIdx === 1 ? -1 : 1;
+    const tx = isMobile ? 0 : (rtl ? -2.6 : 2.6) * flip;
     group.position.x += (tx - group.position.x) * (1 - Math.exp(-dt * 2.0));
 
     currentIdx = targetIdx;

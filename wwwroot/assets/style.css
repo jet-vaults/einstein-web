@@ -283,6 +283,8 @@ h3 { font-size: 1.2rem; margin-block-end: 0.35rem; }
 /* Content cards floating over the canvas */
 .side-layout { display: flex; }
 
+.side-layout.side-end { justify-content: flex-end; }
+
 .content-card {
   background: var(--glass);
   backdrop-filter: blur(14px);
