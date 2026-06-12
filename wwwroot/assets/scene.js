@@ -209,14 +209,14 @@ function init(renderer) {
     return out;
   }
 
-  // the contact ring pulled apart into two flowing halves that frame
-  // the centered team section; particles stream along each arc
+  // two soft particle streams flowing down either side of the centered
+  // team section, later closing into the contact ring
   let splitData = null;
 
   function splitPos(i, out) {
-    const { side, ang, rr, zz } = splitData;
-    const x = side[i] * 3.55 + Math.cos(ang[i]) * 1.0 * rr[i];
-    const y = Math.sin(ang[i]) * 2.5 * rr[i];
+    const { side, yPos, xJit, zz } = splitData;
+    const y = yPos[i];
+    const x = side[i] * 3.55 + Math.sin(y * 1.1 + side[i] * 1.7) * 0.35 + xJit[i];
     out[i * 3] = x;
     out[i * 3 + 1] = y;
     out[i * 3 + 2] = zz[i];
@@ -224,17 +224,15 @@ function init(renderer) {
 
   function shapeSplit() {
     const out = new Float32Array(N * 3);
-    const side = new Int8Array(N), ang = new Float32Array(N);
-    const rr = new Float32Array(N), zz = new Float32Array(N);
+    const side = new Int8Array(N), yPos = new Float32Array(N);
+    const xJit = new Float32Array(N), zz = new Float32Array(N);
     for (let i = 0; i < N; i++) {
       side[i] = i % 2 === 0 ? -1 : 1;
-      // left half: angles facing outward-left; right half mirrored
-      const t = Math.PI / 2 + Math.random() * Math.PI;
-      ang[i] = side[i] === -1 ? t : Math.PI - t;
-      rr[i] = 1 + gauss(0.05);
-      zz[i] = gauss(0.1);
+      yPos[i] = -2.7 + Math.random() * 5.4;
+      xJit[i] = gauss(0.17);
+      zz[i] = gauss(0.12);
     }
-    splitData = { side, ang, rr, zz };
+    splitData = { side, yPos, xJit, zz };
     for (let i = 0; i < N; i++) splitPos(i, out);
     return out;
   }
@@ -376,8 +374,9 @@ function init(renderer) {
     if (isForced) return;
     const idx = pickSection();
     if (idx !== targetIdx) {
+      // gentle glide between the closing sections, punchier elsewhere
+      scale = (idx === 4 || idx === 6) ? 0.94 : 0.78;
       targetIdx = idx;
-      scale = 0.72;                 // pop on shape change
     }
     spinMomentum += (window.scrollY - lastScrollY) * 0.00035;
     lastScrollY = window.scrollY;
@@ -427,23 +426,17 @@ function init(renderer) {
     const dt = Math.min(clock.getDelta(), 0.05);
     const t = clock.elapsedTime;
     const target = shapes[targetIdx];
-    const k = 1 - Math.exp(-dt * 3.4);
+    // slower, smoother morph into the team streams and the contact ring
+    const kRate = (targetIdx === 4 || targetIdx === 6) ? 2.1 : 3.4;
+    const k = 1 - Math.exp(-dt * kRate);
 
-    // team section: particles stream along the two half-rings
+    // team section: the side streams drift gently downward
     if (targetIdx === 6 && splitData) {
-      const flow = dt * 0.16;
+      const fall = dt * 0.32;
       for (let i = 0; i < N; i++) {
-        const sgn = splitData.side[i] === -1 ? 1 : -1;
-        let a = splitData.ang[i] + sgn * flow;
-        // wrap within each half-arc so the stream is continuous
-        if (splitData.side[i] === -1) {
-          if (a > Math.PI * 1.5) a -= Math.PI;
-          if (a < Math.PI * 0.5) a += Math.PI;
-        } else {
-          if (a < -Math.PI * 0.5) a += Math.PI;
-          if (a > Math.PI * 0.5) a -= Math.PI;
-        }
-        splitData.ang[i] = a;
+        let y = splitData.yPos[i] - fall;
+        if (y < -2.7) y += 5.4;
+        splitData.yPos[i] = y;
         splitPos(i, shapes[6]);
       }
     }
