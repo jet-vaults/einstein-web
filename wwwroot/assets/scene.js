@@ -256,12 +256,12 @@ function init(renderer) {
       try { data = cx.getImageData(0, 0, w, h).data; } catch (e) { return; }
 
       const pts = [];
-      const handsTop = h * 0.62;   // the clasp area gets 3x density
+      const handsTop = h * 0.62;   // the clasp area gets 5x density
       for (let y = 0; y < h; y++) {
         for (let x = 0; x < w; x++) {
           if (data[(y * w + x) * 4] < 128) {
             pts.push(x, y);
-            if (y > handsTop) { pts.push(x, y, x, y); }
+            if (y > handsTop) { pts.push(x, y, x, y, x, y, x, y); }
           }
         }
       }
@@ -432,7 +432,11 @@ function init(renderer) {
 
     for (let i = 0; i < N * 3; i++) base[i] += (target[i] - base[i]) * k;
 
-    const amp = 0.024;
+    // the handshake needs crisp detail: smaller dots, calmer wobble
+    const fine = targetIdx === 4;
+    const sizeTarget = fine ? (isMobile ? 0.06 : 0.045) : (isMobile ? 0.085 : 0.065);
+    mat.size += (sizeTarget - mat.size) * (1 - Math.exp(-dt * 2.5));
+    const amp = fine ? 0.009 : 0.024;
     for (let i = 0; i < N; i++) {
       const ph = phases[i];
       draw[i * 3] = base[i * 3] + Math.sin(t * 1.1 + ph) * amp;
