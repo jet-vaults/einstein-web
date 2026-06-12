@@ -122,35 +122,25 @@ function init(renderer) {
       [[-W, T], [W, T]]
     ];
     const textLines = [
-      [[-2.25, -0.15], [2.25, -0.15]],
-      [[-2.25, -0.6], [1.3, -0.6]],
-      [[-2.25, -1.05], [1.9, -1.05]]
+      [[2.25, 0.85], [-2.25, 0.85]],
+      [[2.25, 0.35], [-1.5, 0.35]],
+      [[2.25, -0.15], [-2.0, -0.15]],
+      [[2.25, -0.65], [-1.1, -0.65]],
+      [[2.25, -1.15], [-1.8, -1.15]]
     ];
-    const nFrame = Math.floor(N * 0.36);
+    const nFrame = Math.floor(N * 0.42);
     const nDots = Math.floor(N * 0.06);
-    const nHero = Math.floor(N * 0.26);
-    const nText = Math.floor(N * 0.2);
-    const nBtn = N - nFrame - nDots - nHero - nText;
+    const nText = N - nFrame - nDots;
 
     let i = 0;
     sampleSegments(frame, out, i, nFrame, 0.03, 0.09); i += nFrame;
-    for (let k = 0; k < nDots; k++, i++) {
+    for (let k = 0; k < nDots; k++, i++) {         // window dots, on the right
       const d = k % 3;
-      out[i * 3] = -W + 0.35 + d * 0.3 + gauss(0.05);
+      out[i * 3] = W - 0.35 - d * 0.3 + gauss(0.05);
       out[i * 3 + 1] = (H + T) / 2 + gauss(0.05);
       out[i * 3 + 2] = gauss(0.06);
     }
-    for (let k = 0; k < nHero; k++, i++) {        // hero banner block
-      out[i * 3] = rand(-2.25, 2.25);
-      out[i * 3 + 1] = rand(0.25, 1.05);
-      out[i * 3 + 2] = gauss(0.07);
-    }
-    sampleSegments(textLines, out, i, nText, 0.025, 0.08); i += nText;
-    for (; i < N; i++) {                           // CTA button block
-      out[i * 3] = rand(-2.25, -0.95);
-      out[i * 3 + 1] = rand(-1.62, -1.3);
-      out[i * 3 + 2] = gauss(0.07);
-    }
+    sampleSegments(textLines, out, i, nText, 0.025, 0.08);
     return out;
   }
 
