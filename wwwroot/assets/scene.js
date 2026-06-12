@@ -327,7 +327,7 @@ function init(renderer) {
 
   /* ---------- render loop ---------- */
 
-  group.position.x = (isMobile ? 0 : (document.documentElement.dir === 'rtl' ? -2.6 : 2.6)) * (targetIdx === 1 ? -1 : 1);
+  group.position.x = (isMobile ? 0 : (document.documentElement.dir === 'rtl' ? -2.6 : 2.6)) * ((targetIdx === 1 || targetIdx === 5) ? -1 : 1);
 
   const clock = new THREE.Clock();
   let running = true;
@@ -388,8 +388,8 @@ function init(renderer) {
     group.scale.set(s, s, s);
 
     const rtl = document.documentElement.dir === 'rtl';
-    // services section swaps sides: card inline-end, particles inline-start
-    const flip = targetIdx === 1 ? -1 : 1;
+    // services & reviews swap sides: cards inline-end, particles inline-start
+    const flip = (targetIdx === 1 || targetIdx === 5) ? -1 : 1;
     const tx = isMobile ? 0 : (rtl ? -2.6 : 2.6) * flip;
     group.position.x += (tx - group.position.x) * (1 - Math.exp(-dt * 2.0));
 

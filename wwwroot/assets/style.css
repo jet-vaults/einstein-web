@@ -442,11 +442,13 @@ h3 { font-size: 1.2rem; margin-block-end: 0.35rem; }
 
 .clients-row img:hover { filter: grayscale(0); opacity: 1; }
 
-/* Reviews */
+/* Reviews — stacked column beside the star */
+.reviews-col { width: 100%; max-width: 38rem; }
+
 .review-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.4rem;
+  grid-template-columns: 1fr;
+  gap: 1.1rem;
 }
 
 .review-card {
@@ -763,7 +765,6 @@ body.bm-lock { overflow: hidden; }
 /* ===== Responsive ===== */
 @media (max-width: 64rem) {
   .project-grid { grid-template-columns: repeat(2, 1fr); }
-  .review-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 48rem) {
