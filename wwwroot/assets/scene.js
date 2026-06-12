@@ -213,7 +213,35 @@ function init(renderer) {
     return out;
   }
 
-  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(), shapeRocket(), shapePlane()];
+  function shapeStar() {
+    const out = new Float32Array(N * 3);
+    const R = 2.3, r = 0.95;
+    const verts = [];
+    for (let k = 0; k < 10; k++) {
+      const ang = Math.PI / 2 + k * Math.PI / 5;
+      const rad = k % 2 === 0 ? R : r;
+      verts.push([rad * Math.cos(ang), rad * Math.sin(ang)]);
+    }
+    const segs = verts.map((v, k) => [v, verts[(k + 1) % 10]]);
+    const nOutline = Math.floor(N * 0.62);
+    const nGlow = Math.floor(N * 0.14);
+    sampleSegments(segs, out, 0, nOutline, 0.035, 0.12);
+    for (let i = nOutline; i < nOutline + nGlow; i++) {   // center sparkle
+      out[i * 3] = gauss(0.32);
+      out[i * 3 + 1] = gauss(0.32) + 0.1;
+      out[i * 3 + 2] = gauss(0.2);
+    }
+    for (let i = nOutline + nGlow; i < N; i++) {          // inner fill, sparse
+      const t = Math.random() * Math.PI * 2;
+      const rr = Math.sqrt(Math.random()) * r * 0.92;
+      out[i * 3] = rr * Math.cos(t);
+      out[i * 3 + 1] = rr * Math.sin(t) + 0.1;
+      out[i * 3 + 2] = gauss(0.15);
+    }
+    return out;
+  }
+
+  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(), shapeRocket(), shapePlane(), shapeStar()];
 
   /* ---------- geometry, colors, material ---------- */
 

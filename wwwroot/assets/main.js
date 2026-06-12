@@ -9,8 +9,22 @@
       'brand': 'איינשטיין אתרים',
       'nav.services': 'שירותים',
       'nav.projects': 'פרויקטים',
+      'nav.reviews': 'המלצות',
       'nav.process': 'איך זה עובד',
       'nav.cta': 'דברו איתנו',
+      'stats.clients': 'לקוחות מרוצים',
+      'stats.years': 'שנות ניסיון',
+      'stats.boutique': 'שירות אישי ובוטיק',
+      'clients.title': 'עובדים עם החברות המובילות בישראל',
+      'reviews.kicker': 'המלצות',
+      'reviews.title': 'לקוחות מספרים',
+      'r1.text': 'פנינו לאיינשטיין אתרים לבניית אתר למשרד עורכי דין מוביל — הבחירה הטובה ביותר שיכולנו לעשות. סטנדרטים גבוהים, עיצוב יפהפה וממשק פשוט ונגיש. עברו את כל הציפיות.',
+      'r1.who': 'משרד עורכי דין',
+      'r2.text': 'בנו לנו אתר מכירות אונליין ולא הצטערנו לרגע. תוצאה מדהימה, הצגה מעולה ותחושה של מקצועיות ואמינות לכל אורך הדרך.',
+      'r2.who': 'בעלת חנות אונליין',
+      'r3.text': 'זמינים גם מעבר לשעות העבודה, סבלניים ומקצועיים. שירות יוצא דופן ונכונות לעשות הרבה מעבר למצופה.',
+      'r3.who': 'לקוח עסקי',
+      'reviews.more': 'לכל הביקורות שלנו באיזי ←',
       'hero.kicker': 'חברה לפיתוח אתרים',
       'hero.title': 'בונים אתרים.<br><span class="hl">יוצרים חוויות.</span>',
       'hero.sub': 'איינשטיין אתרים מתמחה באתרים מהירים ומרשימים לעסקים ולפרויקטים של נדל״ן. בלי תבניות, בלי פשרות — גללו למטה ותראו בעצמכם.',
@@ -63,8 +77,22 @@
       'brand': 'Einstein Web',
       'nav.services': 'Services',
       'nav.projects': 'Projects',
+      'nav.reviews': 'Reviews',
       'nav.process': 'How it works',
       'nav.cta': 'Talk to us',
+      'stats.clients': 'Happy clients',
+      'stats.years': 'Years of experience',
+      'stats.boutique': 'Personal boutique service',
+      'clients.title': 'Working with Israel’s leading companies',
+      'reviews.kicker': 'Testimonials',
+      'reviews.title': 'What clients say',
+      'r1.text': 'We came to Einstein Web to build a website for a leading law firm — the best choice we could have made. High standards, beautiful design and a simple, accessible interface. They exceeded every expectation.',
+      'r1.who': 'Law firm',
+      'r2.text': 'They built our online store and we never regretted it for a moment. An amazing result, excellent presentation, and a feeling of professionalism and reliability all the way through.',
+      'r2.who': 'Online store owner',
+      'r3.text': 'Available even outside working hours, patient and professional. Exceptional service and a willingness to go far beyond what was expected.',
+      'r3.who': 'Business client',
+      'reviews.more': 'See all our reviews on Easy →',
       'hero.kicker': 'Web development company',
       'hero.title': 'We build websites.<br><span class="hl">We craft experiences.</span>',
       'hero.sub': 'Einstein Web builds fast, striking websites for businesses and real-estate projects. No templates, no compromises — scroll down and see for yourself.',
@@ -189,9 +217,41 @@
   }, { passive: true });
   updateBar();
 
-  /* ===== Scroll reveal ===== */
+  /* ===== Count-up stats ===== */
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  function countUp(el) {
+    var to = parseInt(el.getAttribute('data-count'), 10) || 0;
+    if (reduceMotion) { el.textContent = to; return; }
+    var start = null, dur = 1400;
+    function step(ts) {
+      if (!start) start = ts;
+      var p = Math.min(1, (ts - start) / dur);
+      el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  if ('IntersectionObserver' in window) {
+    var counterObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          countUp(entry.target);
+          counterObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.4 });
+    document.querySelectorAll('[data-count]').forEach(function (el) {
+      counterObserver.observe(el);
+    });
+  } else {
+    document.querySelectorAll('[data-count]').forEach(function (el) {
+      el.textContent = el.getAttribute('data-count');
+    });
+  }
+
+  /* ===== Scroll reveal ===== */
   if (!('IntersectionObserver' in window) || reduceMotion) return;
 
   document.documentElement.classList.add('js-reveal');
