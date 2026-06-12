@@ -210,43 +210,43 @@ function init(renderer) {
   }
 
   function shapePeople() {
-    // two person silhouettes (head + shoulders), front and back
+    // three filled person silhouettes - one per team member
     const out = new Float32Array(N * 3);
-    const circle = (cx, cy, r, i) => {
-      const a = Math.random() * Math.PI * 2;
-      out[i * 3] = cx + r * Math.cos(a) + gauss(0.035);
-      out[i * 3 + 1] = cy + r * Math.sin(a) + gauss(0.035);
-      out[i * 3 + 2] = gauss(0.1);
-    };
-    const frontBody = [
-      [[-1.7, -0.55], [-1.7, -1.75]], [[0.5, -0.55], [0.5, -1.75]],
-      [[-1.7, -1.75], [0.5, -1.75]]
-    ];
-    const backBody = [
-      [[1.95, -0.35], [1.95, -1.75]], [[0.6, -1.0], [0.6, -1.75]]
-    ];
-    const nFrontHead = Math.floor(N * 0.2);
-    const nFrontArch = Math.floor(N * 0.22);
-    const nFrontSides = Math.floor(N * 0.2);
-    const nBackHead = Math.floor(N * 0.13);
-    const nBackArch = Math.floor(N * 0.13);
     let i = 0;
-    for (let k = 0; k < nFrontHead; k++, i++) circle(-0.6, 1.05, 0.62, i);
-    for (let k = 0; k < nFrontArch; k++, i++) {   // front shoulders arch
-      const a = Math.random() * Math.PI;
-      out[i * 3] = -0.6 + 1.1 * Math.cos(a) + gauss(0.035);
-      out[i * 3 + 1] = -0.55 + 1.1 * Math.sin(a) * 0.85 + gauss(0.035);
-      out[i * 3 + 2] = gauss(0.1);
+
+    function person(cx, headY, headR, bodyW, shoulderY, bottomY, count) {
+      const headArea = Math.PI * headR * headR;
+      const domeArea = Math.PI * bodyW * bodyW * 0.7 / 2;
+      const rectArea = 2 * bodyW * (shoulderY - bottomY);
+      const total = headArea + domeArea + rectArea;
+      for (let k = 0; k < count; k++, i++) {
+        const pick = Math.random() * total;
+        let x, y;
+        if (pick < headArea) {                 // head disk
+          const a = Math.random() * Math.PI * 2;
+          const r = headR * Math.sqrt(Math.random());
+          x = cx + r * Math.cos(a);
+          y = headY + r * Math.sin(a);
+        } else if (pick < headArea + domeArea) { // shoulder dome
+          const a = Math.random() * Math.PI;
+          const r = bodyW * Math.sqrt(Math.random());
+          x = cx + r * Math.cos(a);
+          y = shoulderY + r * Math.sin(a) * 0.7;
+        } else {                                // torso
+          x = cx + (Math.random() * 2 - 1) * bodyW;
+          y = bottomY + Math.random() * (shoulderY - bottomY);
+        }
+        out[i * 3] = x + gauss(0.02);
+        out[i * 3 + 1] = y + gauss(0.02);
+        out[i * 3 + 2] = gauss(0.08);
+      }
     }
-    sampleSegments(frontBody, out, i, nFrontSides, 0.035, 0.1); i += nFrontSides;
-    for (let k = 0; k < nBackHead; k++, i++) circle(1.25, 1.15, 0.47, i);
-    for (let k = 0; k < nBackArch; k++, i++) {    // back shoulders arch
-      const a = Math.random() * Math.PI;
-      out[i * 3] = 1.28 + 0.78 * Math.cos(a) + gauss(0.035);
-      out[i * 3 + 1] = -0.35 + 0.78 * Math.sin(a) * 0.8 + gauss(0.035);
-      out[i * 3 + 2] = gauss(0.1);
-    }
-    sampleSegments(backBody, out, i, N - i, 0.035, 0.1);
+
+    const nMid = Math.floor(N * 0.4);
+    const nSide = Math.floor(N * 0.3);
+    person(-1.55, 0.85, 0.45, 0.72, -0.25, -1.7, nSide);
+    person(0, 1.15, 0.52, 0.82, -0.05, -1.7, nMid);
+    person(1.55, 0.85, 0.45, 0.72, -0.25, -1.7, N - i);
     return out;
   }
 
@@ -266,6 +266,45 @@ function init(renderer) {
 
   const browserDir = () => document.documentElement.dir === 'rtl' ? -1 : 1;
   const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeRing(), shapeStar(), shapePeople()];
+
+  /* Ring-with-handshake for the contact section: dense sampling of the
+     silhouette mask, hands at 6x so the clasp is clearly readable. */
+  (function loadHandshakeRing(target) {
+    const img = new Image();
+    img.onload = function () {
+      const w = img.naturalWidth, h = img.naturalHeight;
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      const cx = c.getContext('2d');
+      cx.drawImage(img, 0, 0);
+      let data;
+      try { data = cx.getImageData(0, 0, w, h).data; } catch (e) { return; }
+
+      const pts = [];
+      const handsTop = h * 0.62;
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          if (data[(y * w + x) * 4] < 128) {
+            pts.push(x, y);
+            if (y > handsTop) pts.push(x, y, x, y, x, y, x, y, x, y);
+          }
+        }
+      }
+      if (pts.length < 600) return;
+
+      const nPix = pts.length / 2;
+      const s = 5.2 / h;                 // tighter around the card
+      const cyRow = h * 0.46;
+      for (let i = 0; i < N; i++) {
+        const j = ((Math.random() * nPix) | 0) * 2;
+        target[i * 3] = (pts[j] - w / 2 + Math.random()) * s;
+        target[i * 3 + 1] = (cyRow - pts[j + 1] + Math.random()) * s;
+        target[i * 3 + 2] = gauss(0.04);
+      }
+      if (isForced && targetIdx === 4) base.set(target);
+    };
+    img.src = '/assets/handshake-mask.png';
+  })(shapes[4]);
 
   // rebuild the browser shape when the language toggle flips direction
   new MutationObserver(() => {

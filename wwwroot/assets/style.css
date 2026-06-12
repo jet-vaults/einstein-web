@@ -442,7 +442,7 @@ h3 { font-size: 1.2rem; margin-block-end: 0.35rem; }
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.4rem;
-  max-width: 52rem;
+  max-width: 46rem;
 }
 
 .team-card {
