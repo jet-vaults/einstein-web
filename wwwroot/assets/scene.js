@@ -187,41 +187,66 @@ function init(renderer) {
     return out;
   }
 
-  function shapeFrame() {
-    // rounded-rect halo that hugs the contact card: "let's build together"
-    // card measures ~608x570px => ~2.24x2.10 world units at z=8
+  function shapeRing() {
+    // soft circular ring around the centered contact card
     const out = new Float32Array(N * 3);
-    const W = 2.5, H = 2.36, r = 0.45;
-    const straights = [
-      [[-(W - r), H], [W - r, H]],
-      [[W, H - r], [W, -(H - r)]],
-      [[W - r, -H], [-(W - r), -H]],
-      [[-W, -(H - r)], [-W, H - r]]
-    ];
-    const corners = [
-      [W - r, H - r, 0], [W - r, -(H - r), -Math.PI / 2],
-      [-(W - r), -(H - r), Math.PI], [-(W - r), H - r, Math.PI / 2]
-    ];
+    const RX = 3.05, RY = 2.78, band = 0.2;
     const nHalo = Math.floor(N * 0.08);
-    const nArc = Math.floor(N * 0.14);
-    const nStraight = N - nHalo - nArc;
-
-    sampleSegments(straights, out, 0, nStraight, 0.045, 0.12);
-    for (let k = 0; k < nArc; k++) {
-      const i = nStraight + k;
-      const c = corners[k % 4];
-      const a = c[2] + Math.random() * Math.PI / 2;
-      out[i * 3] = c[0] + r * Math.cos(a) + gauss(0.045);
-      out[i * 3 + 1] = c[1] + r * Math.sin(a) + gauss(0.045);
+    for (let i = 0; i < N - nHalo; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const rr = 1 + gauss(band / 2);
+      out[i * 3] = Math.cos(a) * RX * rr;
+      out[i * 3 + 1] = Math.sin(a) * RY * rr;
       out[i * 3 + 2] = gauss(0.12);
     }
     for (let i = N - nHalo; i < N; i++) {   // loose sparkle just outside
       const a = Math.random() * Math.PI * 2;
-      const rr = 1.12 + Math.random() * 0.25;
-      out[i * 3] = Math.cos(a) * W * rr;
-      out[i * 3 + 1] = Math.sin(a) * H * rr;
+      const rr = 1.15 + Math.random() * 0.25;
+      out[i * 3] = Math.cos(a) * RX * rr;
+      out[i * 3 + 1] = Math.sin(a) * RY * rr;
       out[i * 3 + 2] = gauss(0.25);
     }
+    return out;
+  }
+
+  function shapePeople() {
+    // two person silhouettes (head + shoulders), front and back
+    const out = new Float32Array(N * 3);
+    const circle = (cx, cy, r, i) => {
+      const a = Math.random() * Math.PI * 2;
+      out[i * 3] = cx + r * Math.cos(a) + gauss(0.035);
+      out[i * 3 + 1] = cy + r * Math.sin(a) + gauss(0.035);
+      out[i * 3 + 2] = gauss(0.1);
+    };
+    const frontBody = [
+      [[-1.7, -0.55], [-1.7, -1.75]], [[0.5, -0.55], [0.5, -1.75]],
+      [[-1.7, -1.75], [0.5, -1.75]]
+    ];
+    const backBody = [
+      [[1.95, -0.35], [1.95, -1.75]], [[0.6, -1.0], [0.6, -1.75]]
+    ];
+    const nFrontHead = Math.floor(N * 0.2);
+    const nFrontArch = Math.floor(N * 0.22);
+    const nFrontSides = Math.floor(N * 0.2);
+    const nBackHead = Math.floor(N * 0.13);
+    const nBackArch = Math.floor(N * 0.13);
+    let i = 0;
+    for (let k = 0; k < nFrontHead; k++, i++) circle(-0.6, 1.05, 0.62, i);
+    for (let k = 0; k < nFrontArch; k++, i++) {   // front shoulders arch
+      const a = Math.random() * Math.PI;
+      out[i * 3] = -0.6 + 1.1 * Math.cos(a) + gauss(0.035);
+      out[i * 3 + 1] = -0.55 + 1.1 * Math.sin(a) * 0.85 + gauss(0.035);
+      out[i * 3 + 2] = gauss(0.1);
+    }
+    sampleSegments(frontBody, out, i, nFrontSides, 0.035, 0.1); i += nFrontSides;
+    for (let k = 0; k < nBackHead; k++, i++) circle(1.25, 1.15, 0.47, i);
+    for (let k = 0; k < nBackArch; k++, i++) {    // back shoulders arch
+      const a = Math.random() * Math.PI;
+      out[i * 3] = 1.28 + 0.78 * Math.cos(a) + gauss(0.035);
+      out[i * 3 + 1] = -0.35 + 0.78 * Math.sin(a) * 0.8 + gauss(0.035);
+      out[i * 3 + 2] = gauss(0.1);
+    }
+    sampleSegments(backBody, out, i, N - i, 0.035, 0.1);
     return out;
   }
 
@@ -240,42 +265,7 @@ function init(renderer) {
   }
 
   const browserDir = () => document.documentElement.dir === 'rtl' ? -1 : 1;
-  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeFrame(), shapeStar()];
-
-  /* Handshake ring for the contact section: sample the silhouette mask
-     into shape slot 4, replacing the plain frame once loaded. */
-  (function loadHandshake(target) {
-    const img = new Image();
-    img.onload = function () {
-      const w = img.naturalWidth, h = img.naturalHeight;
-      const c = document.createElement('canvas');
-      c.width = w; c.height = h;
-      const cx = c.getContext('2d');
-      cx.drawImage(img, 0, 0);
-      let data;
-      try { data = cx.getImageData(0, 0, w, h).data; } catch (e) { return; }
-
-      const pts = [];
-      for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-          if (data[(y * w + x) * 4] < 128) pts.push(x, y);
-        }
-      }
-      if (pts.length < 600) return;
-
-      const nPix = pts.length / 2;
-      const s = 4.3 / h;                 // ~4.3 world units tall
-      const cyRow = h * 0.5;
-      for (let i = 0; i < N; i++) {
-        const j = ((Math.random() * nPix) | 0) * 2;
-        target[i * 3] = (pts[j] - w / 2 + Math.random()) * s;
-        target[i * 3 + 1] = (cyRow - pts[j + 1] + Math.random()) * s;
-        target[i * 3 + 2] = gauss(0.05);
-      }
-      if (isForced && targetIdx === 4) base.set(target);
-    };
-    img.src = '/assets/handshake-mask.png';
-  })(shapes[4]);
+  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeRing(), shapeStar(), shapePeople()];
 
   // rebuild the browser shape when the language toggle flips direction
   new MutationObserver(() => {
@@ -442,8 +432,8 @@ function init(renderer) {
     geo.attributes.position.needsUpdate = true;
 
     spinMomentum *= Math.exp(-dt * 2.2);
-    // keep the handshake fairly flat so it stays readable
-    const rotAmp = targetIdx === 4 ? 0.45 : 1;
+    // the contact ring stays nearly flat so it tracks the card
+    const rotAmp = targetIdx === 4 ? 0.2 : 1;
     group.rotation.y += ((Math.sin(t * 0.1) * 0.16 + mx * 0.3) * rotAmp + spinMomentum - group.rotation.y) * (1 - Math.exp(-dt * 2.5));
     group.rotation.y += spinMomentum * dt * 18;
     group.rotation.x += (my * 0.14 * rotAmp - group.rotation.x) * (1 - Math.exp(-dt * 2.5));
@@ -453,9 +443,9 @@ function init(renderer) {
     group.scale.set(s, s, s);
 
     const rtl = document.documentElement.dir === 'rtl';
-    // services & reviews swap sides: cards inline-end, particles inline-start
+    // services & reviews swap sides; the contact ring centers on its card
     const flip = (targetIdx === 1 || targetIdx === 5) ? -1 : 1;
-    const tx = isMobile ? 0 : (rtl ? -2.6 : 2.6) * flip;
+    const tx = (isMobile || targetIdx === 4) ? 0 : (rtl ? -2.6 : 2.6) * flip;
     group.position.x += (tx - group.position.x) * (1 - Math.exp(-dt * 2.0));
 
     currentIdx = targetIdx;
