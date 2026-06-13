@@ -283,8 +283,8 @@ function init(renderer) {
       if (pts.length < 600) return;
 
       const nPix = pts.length / 2;
-      const s = 3.7 / Math.max(w, h);    // compact handshake icon in the left margin
-      const OFF_X = -2.75, OFF_Y = 0.1;
+      const s = 2.6 / Math.max(w, h);    // filled handshake, centred above the form
+      const OFF_X = 0, OFF_Y = 1.78;
       const cx0 = w / 2, cy0 = h / 2;
       for (let i = 0; i < N; i++) {
         const j = ((Math.random() * nPix) | 0) * 2;
