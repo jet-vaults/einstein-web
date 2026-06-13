@@ -438,6 +438,10 @@ h3 { font-size: 1.2rem; margin-block-end: 0.35rem; }
 .reviews-more a:hover { color: var(--cyan); }
 
 /* ===== Team ===== */
+/* The team content is short (3 cards), so a full 92vh panel leaves large
+   empty gaps above and below it. Size this section to its content with
+   comfortable padding so the cards sit as the centered focus. */
+#team.panel { min-height: auto; padding-block: clamp(5rem, 12vh, 9rem); }
 #team .container { text-align: center; }
 
 .team-grid {
