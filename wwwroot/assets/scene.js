@@ -213,11 +213,10 @@ function init(renderer) {
   // left margin so it reads clearly as "our team" beside the centred cards.
   function shapeTeam() {
     const out = new Float32Array(N * 3);
-    const OFF_X = -2.95, OFF_Y = 0.0, SC = 0.8;
+    const OFF_X = -2.6, OFF_Y = 0.0, SC = 0.8;
     const people = [
-      { cx: -1.7, s: 0.92 },
-      { cx:  0.0, s: 1.12 },   // centre figure a touch larger
-      { cx:  1.7, s: 0.92 }
+      { cx: -0.9, s: 1.05 },
+      { cx:  0.9, s: 1.05 }
     ];
     const wsum = people.reduce((a, p) => a + p.s, 0);
     let idx = 0;
