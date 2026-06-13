@@ -261,41 +261,6 @@ function init(renderer) {
   const browserDir = () => document.documentElement.dir === 'rtl' ? -1 : 1;
   const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeRing(), shapeStar(), shapeTeam()];
 
-  /* Handshake outline for the contact section: particles trace the outline
-     of the handshake icon, centred and large behind the contact card. */
-  (function loadHandshakeRing(target) {
-    const img = new Image();
-    img.onload = function () {
-      const w = img.naturalWidth, h = img.naturalHeight;
-      const c = document.createElement('canvas');
-      c.width = w; c.height = h;
-      const cx = c.getContext('2d');
-      cx.drawImage(img, 0, 0);
-      let data;
-      try { data = cx.getImageData(0, 0, w, h).data; } catch (e) { return; }
-
-      const pts = [];
-      for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-          if (data[(y * w + x) * 4] < 128) pts.push(x, y);
-        }
-      }
-      if (pts.length < 600) return;
-
-      const nPix = pts.length / 2;
-      const s = 2.6 / Math.max(w, h);    // filled handshake, centred above the form
-      const OFF_X = 0, OFF_Y = 1.78;
-      const cx0 = w / 2, cy0 = h / 2;
-      for (let i = 0; i < N; i++) {
-        const j = ((Math.random() * nPix) | 0) * 2;
-        target[i * 3] = (pts[j] - cx0 + Math.random()) * s + OFF_X;
-        target[i * 3 + 1] = (cy0 - pts[j + 1] + Math.random()) * s + OFF_Y;
-        target[i * 3 + 2] = gauss(0.04);
-      }
-      if (isForced && targetIdx === 4) base.set(target);
-    };
-    img.src = '/assets/handshake-mask.png';
-  })(shapes[4]);
 
   // rebuild the browser shape when the language toggle flips direction
   new MutationObserver(() => {
@@ -452,7 +417,7 @@ function init(renderer) {
     for (let i = 0; i < N * 3; i++) base[i] += (target[i] - base[i]) * k;
 
     // the handshake needs crisp detail: smaller dots, calmer wobble
-    const fine = targetIdx === 4;
+    const fine = false;
     const sizeTarget = fine ? (isMobile ? 0.06 : 0.045) : (isMobile ? 0.085 : 0.065);
     mat.size += (sizeTarget - mat.size) * (1 - Math.exp(-dt * 2.5));
     const amp = fine ? 0.009 : 0.024;
