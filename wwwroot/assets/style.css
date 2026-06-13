@@ -390,13 +390,17 @@ h3 { font-size: 1.2rem; margin-block-end: 0.35rem; }
 .contact .lead { margin-block-end: 2.2rem; }
 
 /* Reviews — stacked column beside the star */
-.reviews-col { width: 100%; max-width: 38rem; }
+.reviews-col { width: 100%; max-width: none; }
 
 .review-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: start;
   gap: 1.1rem;
 }
+
+@media (max-width: 62rem) { .review-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 40rem) { .review-grid { grid-template-columns: 1fr; } }
 
 .review-card {
   background: var(--glass);
@@ -419,7 +423,8 @@ h3 { font-size: 1.2rem; margin-block-end: 0.35rem; }
 
 .review-card blockquote {
   color: var(--ink);
-  font-size: 0.98rem;
+  font-size: 0.92rem;
+  line-height: 1.65;
   flex: 1;
   margin-block-end: 1rem;
 }
@@ -492,6 +497,14 @@ h3 { font-size: 1.2rem; margin-block-end: 0.35rem; }
   letter-spacing: 0.03em;
   margin-block-end: 1.1rem;
   box-shadow: 0 0 0 4px #fff, 0 0 0 6px rgba(1, 160, 198, 0.35);
+}
+
+/* Photo avatars: keep the same circular size + ring, fill with the image */
+.team-avatar--photo {
+  background-color: #fff;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center top;
 }
 
 .team-card h3 { font-size: 1.25rem; margin-block-end: 0.55rem; }
