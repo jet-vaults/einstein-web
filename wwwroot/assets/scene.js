@@ -261,8 +261,8 @@ function init(renderer) {
   const browserDir = () => document.documentElement.dir === 'rtl' ? -1 : 1;
   const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeRing(), shapeStar(), shapeTeam()];
 
-  /* Ring-with-handshake for the contact section: dense sampling of the
-     silhouette mask, hands at 6x so the clasp is clearly readable. */
+  /* Handshake outline for the contact section: particles trace the outline
+     of the handshake icon, centred and large behind the contact card. */
   (function loadHandshakeRing(target) {
     const img = new Image();
     img.onload = function () {
@@ -275,25 +275,21 @@ function init(renderer) {
       try { data = cx.getImageData(0, 0, w, h).data; } catch (e) { return; }
 
       const pts = [];
-      const handsTop = h * 0.62;
       for (let y = 0; y < h; y++) {
         for (let x = 0; x < w; x++) {
-          if (data[(y * w + x) * 4] < 128) {
-            pts.push(x, y);
-            if (y > handsTop) pts.push(x, y, x, y, x, y, x, y, x, y);
-          }
+          if (data[(y * w + x) * 4] < 128) pts.push(x, y);
         }
       }
       if (pts.length < 600) return;
 
       const nPix = pts.length / 2;
-      const s = 3.5 / h;                 // compact emblem, sits in the left margin
-      const OFF_X = -2.55, OFF_Y = 0;
-      const cyRow = h * 0.5;
+      const s = 8.0 / Math.max(w, h);    // large, centred so the hands reach past the card
+      const OFF_X = 0, OFF_Y = 0.2;
+      const cx0 = w / 2, cy0 = h / 2;
       for (let i = 0; i < N; i++) {
         const j = ((Math.random() * nPix) | 0) * 2;
-        target[i * 3] = (pts[j] - w / 2 + Math.random()) * s + OFF_X;
-        target[i * 3 + 1] = (cyRow - pts[j + 1] + Math.random()) * s + OFF_Y;
+        target[i * 3] = (pts[j] - cx0 + Math.random()) * s + OFF_X;
+        target[i * 3 + 1] = (cy0 - pts[j + 1] + Math.random()) * s + OFF_Y;
         target[i * 3 + 2] = gauss(0.04);
       }
       if (isForced && targetIdx === 4) base.set(target);
