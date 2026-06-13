@@ -209,31 +209,39 @@ function init(renderer) {
     return out;
   }
 
-  // two soft particle streams flowing down either side of the centered
-  // team section, later closing into the contact ring
-  let splitData = null;
-
-  function splitPos(i, out) {
-    const { side, yPos, xJit, zz } = splitData;
-    const y = yPos[i];
-    const x = side[i] * 3.55 + Math.sin(y * 1.1 + side[i] * 1.7) * 0.35 + xJit[i];
-    out[i * 3] = x;
-    out[i * 3 + 1] = y;
-    out[i * 3 + 2] = zz[i];
-  }
-
-  function shapeSplit() {
+  // a small group of people (busts) for the team section. Baked into the
+  // left margin so it reads clearly as "our team" beside the centred cards.
+  function shapeTeam() {
     const out = new Float32Array(N * 3);
-    const side = new Int8Array(N), yPos = new Float32Array(N);
-    const xJit = new Float32Array(N), zz = new Float32Array(N);
-    for (let i = 0; i < N; i++) {
-      side[i] = i % 2 === 0 ? -1 : 1;
-      yPos[i] = -2.7 + Math.random() * 5.4;
-      xJit[i] = gauss(0.17);
-      zz[i] = gauss(0.12);
+    const OFF_X = -2.95, OFF_Y = 0.0, SC = 0.8;
+    const people = [
+      { cx: -1.7, s: 0.92 },
+      { cx:  0.0, s: 1.12 },   // centre figure a touch larger
+      { cx:  1.7, s: 0.92 }
+    ];
+    const wsum = people.reduce((a, p) => a + p.s, 0);
+    let idx = 0;
+    for (let pi = 0; pi < people.length; pi++) {
+      const p = people[pi];
+      const count = pi === people.length - 1 ? N - idx : Math.round(N * p.s / wsum);
+      const headR = 0.4 * p.s, headY = 0.98 * p.s;
+      const torsoRX = 0.52 * p.s, torsoRY = 0.92 * p.s, torsoCY = -0.35 * p.s;
+      const nHead = Math.floor(count * 0.3);
+      for (let k = 0; k < count; k++, idx++) {
+        let x, y;
+        if (k < nHead) {                       // round head
+          const r = headR * Math.sqrt(Math.random()), a = Math.random() * Math.PI * 2;
+          x = p.cx + r * Math.cos(a); y = headY + r * Math.sin(a);
+        } else {                               // oval torso
+          const r = Math.sqrt(Math.random()), a = Math.random() * Math.PI * 2;
+          x = p.cx + torsoRX * r * Math.cos(a);
+          y = torsoCY + torsoRY * r * Math.sin(a);
+        }
+        out[idx * 3]     = x * SC + OFF_X + gauss(0.02);
+        out[idx * 3 + 1] = y * SC + OFF_Y + gauss(0.02);
+        out[idx * 3 + 2] = gauss(0.07);
+      }
     }
-    splitData = { side, yPos, xJit, zz };
-    for (let i = 0; i < N; i++) splitPos(i, out);
     return out;
   }
 
@@ -252,7 +260,7 @@ function init(renderer) {
   }
 
   const browserDir = () => document.documentElement.dir === 'rtl' ? -1 : 1;
-  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeRing(), shapeStar(), shapeSplit()];
+  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeRing(), shapeStar(), shapeTeam()];
 
   /* Ring-with-handshake for the contact section: dense sampling of the
      silhouette mask, hands at 6x so the clasp is clearly readable. */
@@ -280,12 +288,13 @@ function init(renderer) {
       if (pts.length < 600) return;
 
       const nPix = pts.length / 2;
-      const s = 5.2 / h;                 // tighter around the card
-      const cyRow = h * 0.46;
+      const s = 3.5 / h;                 // compact emblem, sits in the left margin
+      const OFF_X = -2.55, OFF_Y = 0;
+      const cyRow = h * 0.5;
       for (let i = 0; i < N; i++) {
         const j = ((Math.random() * nPix) | 0) * 2;
-        target[i * 3] = (pts[j] - w / 2 + Math.random()) * s;
-        target[i * 3 + 1] = (cyRow - pts[j + 1] + Math.random()) * s;
+        target[i * 3] = (pts[j] - w / 2 + Math.random()) * s + OFF_X;
+        target[i * 3 + 1] = (cyRow - pts[j + 1] + Math.random()) * s + OFF_Y;
         target[i * 3 + 2] = gauss(0.04);
       }
       if (isForced && targetIdx === 4) base.set(target);
@@ -430,17 +439,6 @@ function init(renderer) {
     const kRate = (targetIdx === 4 || targetIdx === 6) ? 2.1 : 3.4;
     const k = 1 - Math.exp(-dt * kRate);
 
-    // team section: the side streams drift gently downward
-    if (targetIdx === 6 && splitData) {
-      const fall = dt * 0.32;
-      for (let i = 0; i < N; i++) {
-        let y = splitData.yPos[i] - fall;
-        if (y < -2.7) y += 5.4;
-        splitData.yPos[i] = y;
-        splitPos(i, shapes[6]);
-      }
-    }
-
     // electrons orbit the nucleus slowly, and each blob swirls around itself
     if (targetIdx === 0 && atomElectrons) {
       const { start, ri, phi, zi } = atomElectrons;
@@ -472,7 +470,7 @@ function init(renderer) {
     geo.attributes.position.needsUpdate = true;
 
     spinMomentum *= Math.exp(-dt * 2.2);
-    // the contact ring and team split stay nearly flat
+    // the contact handshake and team people stay nearly flat
     const rotAmp = (targetIdx === 4 || targetIdx === 6) ? 0.2 : 1;
     group.rotation.y += ((Math.sin(t * 0.1) * 0.16 + mx * 0.3) * rotAmp + spinMomentum - group.rotation.y) * (1 - Math.exp(-dt * 2.5));
     group.rotation.y += spinMomentum * dt * 18;
@@ -483,7 +481,7 @@ function init(renderer) {
     group.scale.set(s, s, s);
 
     const rtl = document.documentElement.dir === 'rtl';
-    // services & reviews swap sides; team split and contact ring center
+    // services & reviews swap sides; team & contact keep their baked-in offset
     const flip = (targetIdx === 1 || targetIdx === 5) ? -1 : 1;
     const centered = targetIdx === 4 || targetIdx === 6;
     const tx = (isMobile || centered) ? 0 : (rtl ? -2.6 : 2.6) * flip;
