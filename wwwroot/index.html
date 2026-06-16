@@ -16,9 +16,11 @@
   <div class="scroll-progress" aria-hidden="true"><span id="scrollBar"></span></div>
 
   <canvas id="scene" aria-hidden="true"></canvas>
-  <!-- Static decorative fallback shown when the WebGL particle scene can't
-       run (no WebGL / reduced motion / blocked). scene.js adds .has-scene
-       to <html> when the live scene is active, which hides this. -->
+  <!-- Fallbacks for when the WebGL particle scene can't run. scene.js adds
+       .has-scene to <html> when the live scene is active (hides both).
+       scene-fallback.js adds .has-fallback-2d to run animated 2D particles
+       where there's no WebGL; the static dot div is the no-motion fallback. -->
+  <canvas id="scene2d" aria-hidden="true"></canvas>
   <div class="scene-fallback" aria-hidden="true"></div>
 
   <header class="nav">
@@ -377,5 +379,6 @@
     { "imports": { "three": "/assets/three.module.js" } }
   </script>
   <script type="module" src="/assets/scene.js?v=4"></script>
+  <script src="/assets/scene-fallback.js?v=1"></script>
 </body>
 </html>

@@ -85,6 +85,21 @@ body {
 
 html.has-scene .scene-fallback { display: none; }
 
+/* Animated 2D particle fallback (no WebGL, motion allowed). Masked so the
+   particles frame the content and stay clear of the central text. */
+#scene2d {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-canvas);
+  pointer-events: none;
+  display: none;
+  -webkit-mask-image: radial-gradient(ellipse 62% 58% at 50% 45%, transparent 30%, #000 82%);
+          mask-image: radial-gradient(ellipse 62% 58% at 50% 45%, transparent 30%, #000 82%);
+}
+
+html.has-fallback-2d #scene2d { display: block; }
+html.has-fallback-2d .scene-fallback { display: none; }
+
 main, .footer { position: relative; z-index: var(--z-content); }
 
 /* ===== Scroll progress ===== */
