@@ -18,7 +18,10 @@ if (!canvas || reduceMotion) {
   } catch (e) {
     canvas.style.display = 'none';
   }
-  if (renderer) init(renderer);
+  if (renderer) {
+    document.documentElement.classList.add('has-scene');
+    init(renderer);
+  }
 }
 
 function init(renderer) {

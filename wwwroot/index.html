@@ -16,6 +16,10 @@
   <div class="scroll-progress" aria-hidden="true"><span id="scrollBar"></span></div>
 
   <canvas id="scene" aria-hidden="true"></canvas>
+  <!-- Static decorative fallback shown when the WebGL particle scene can't
+       run (no WebGL / reduced motion / blocked). scene.js adds .has-scene
+       to <html> when the live scene is active, which hides this. -->
+  <div class="scene-fallback" aria-hidden="true"></div>
 
   <header class="nav">
     <div class="container nav-inner">
