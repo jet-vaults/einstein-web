@@ -477,7 +477,17 @@ h3 { font-size: 1.2rem; margin-block-end: 0.35rem; }
 /* Sized to its content (like the team section) so it stays tidy whether
    the grid is empty or full. Add .tech-card tiles in index.html. */
 #tech.panel { min-height: auto; padding-block: clamp(5rem, 12vh, 9rem); }
-#tech .container { text-align: center; }
+
+/* The editorial copy sits straight on the page (no cards), so a soft
+   borderless frosted veil keeps it readable over the particle scene. */
+#tech .container {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--radius);
+  padding-block: 2.4rem;
+}
 
 .tech-grid {
   display: grid;
@@ -511,55 +521,66 @@ h3 { font-size: 1.2rem; margin-block-end: 0.35rem; }
 
 .tech-name { font-weight: 600; font-size: 0.95rem; color: var(--ink); }
 
-/* Long-form copy under the tech title: two glass cards, start-aligned so
-   the paragraphs read naturally in both RTL (he) and LTR (en). */
-.tech-info {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.4rem;
-  max-width: 64rem;
+/* Editorial copy under the tech title: a narrative reading column, the
+   truck/sports-car analogy as a centered pull-quote between hairlines,
+   then three icon-led columns. Logical properties keep RTL/LTR happy. */
+.tech-story {
+  max-width: 44rem;
   margin-inline: auto;
-  margin-block: 1.4rem 2.4rem;
+  margin-block: 1.6rem 3rem;
   text-align: start;
 }
 
-.tech-info-card {
-  background: var(--glass);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: clamp(1.6rem, 3vw, 2.3rem);
+.tech-story h3 {
+  text-align: center;
+  font-size: 1.5rem;
+  margin-block-end: 1rem;
 }
 
-.tech-info-card h3 {
-  font-size: 1.4rem;
+.tech-story p { color: var(--muted); }
+.tech-story p + p { margin-block-start: 1rem; }
+
+.tech-quote {
+  margin-block-start: 1.9rem;
+  padding-block: 1.4rem;
+  border-block: 1px solid var(--line);
+  font-size: 1.15rem;
+  font-weight: 500;
+  line-height: 1.65;
+  color: var(--ink);
+  text-align: center;
+}
+
+.tech-sub { font-size: 1.5rem; margin-block-end: 1.8rem; }
+
+.tech-points {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.2rem;
+  max-width: 66rem;
+  margin-inline: auto;
+  margin-block-end: 2.4rem;
+  text-align: start;
+}
+
+.tech-point-ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.7rem;
+  height: 2.7rem;
+  border-radius: 12px;
+  background: rgba(1, 160, 198, 0.1);
   color: var(--blue);
-  margin-block-end: 0.7rem;
+  margin-block-end: 0.85rem;
 }
 
-.tech-info-card p {
-  color: var(--muted);
-  font-size: 0.97rem;
-}
+.tech-point-ico svg { width: 1.4rem; height: 1.4rem; }
 
-.tech-info-card p + p { margin-block-start: 0.9rem; }
-
-.tech-info-card strong { color: var(--ink); font-weight: 700; }
-
-/* The truck vs. sports-car analogy gets a tinted callout of its own. */
-.tech-callout {
-  border-inline-start: 3px solid var(--cyan);
-  background: var(--tint);
-  border-radius: 10px;
-  padding: 0.85rem 1.1rem;
-}
-
-.tech-callout strong { color: var(--blue); }
+.tech-point p { color: var(--muted); font-size: 0.95rem; }
 
 @media (max-width: 52rem) {
-  .tech-info { grid-template-columns: 1fr; }
+  .tech-points { grid-template-columns: 1fr; gap: 1.7rem; }
 }
 
 /* ===== Team ===== */
