@@ -473,114 +473,117 @@ h3 { font-size: 1.2rem; margin-block-end: 0.35rem; }
 
 .reviews-more a:hover { color: var(--cyan); }
 
-/* ===== Technologies ===== */
-/* Sized to its content (like the team section) so it stays tidy whether
-   the grid is empty or full. Add .tech-card tiles in index.html. */
-#tech.panel { min-height: auto; padding-block: clamp(5rem, 12vh, 9rem); }
+/* ===== Why we're different (white card) + Our tech (dark band) ===== */
+/* Two sibling sections sized to their content, like the team section. */
+#tech.panel, #stack.panel { min-height: auto; padding-block: clamp(4rem, 10vh, 7rem); }
+#tech .container, #stack .container { text-align: center; }
 
-/* The editorial copy sits straight on the page (no cards), so a soft
-   borderless frosted veil keeps it readable over the particle scene. */
-#tech .container {
-  text-align: center;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: var(--radius);
-  padding-block: 2.4rem;
-}
-
-.tech-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
-  gap: 1rem;
-  max-width: 58rem;
+/* --- White card: the "our websites are different" story --- */
+.diff-card {
+  max-width: 52rem;
   margin-inline: auto;
-}
-
-.tech-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.7rem;
   background: #fff;
   border: 1px solid var(--line);
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(14, 42, 71, 0.06);
-  padding: 1.5rem 1rem;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  border-radius: calc(var(--radius) + 6px);
+  box-shadow: var(--shadow);
+  padding: clamp(2.2rem, 5vw, 3.8rem) clamp(1.4rem, 4.5vw, 3.4rem);
+  position: relative;
+  overflow: hidden;
 }
 
-.tech-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(1, 160, 198, 0.45);
-  box-shadow: 0 18px 40px rgba(23, 99, 170, 0.14);
+/* thin gradient thread across the top edge — the card's only ornament */
+.diff-card::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 0;
+  height: 4px;
+  background: var(--grad);
 }
 
-.tech-logo { width: 3rem; height: 3rem; object-fit: contain; }
-
-.tech-name { font-weight: 600; font-size: 0.95rem; color: var(--ink); }
-
-/* Editorial copy under the tech title: a narrative reading column, the
-   truck/sports-car analogy as a centered pull-quote between hairlines,
-   then three icon-led columns. Logical properties keep RTL/LTR happy. */
-.tech-story {
-  max-width: 44rem;
-  margin-inline: auto;
-  margin-block: 1.6rem 3rem;
-  text-align: start;
+.diff-slogan {
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 4.6vw, 3.1rem);
+  line-height: 1.3;
+  margin-block: 0.2rem 1.5rem;
 }
 
-.tech-story h3 {
-  text-align: center;
-  font-size: 1.5rem;
-  margin-block-end: 1rem;
-}
+.diff-story { text-align: start; }
+.diff-story p { color: var(--muted); }
+.diff-story p + p { margin-block-start: 1rem; }
 
-.tech-story p { color: var(--muted); }
-.tech-story p + p { margin-block-start: 1rem; }
-
-.tech-quote {
+.diff-quote {
   margin-block-start: 1.9rem;
-  padding-block: 1.4rem;
-  border-block: 1px solid var(--line);
-  font-size: 1.15rem;
+  padding: 1.3rem 1.5rem;
+  background: var(--tint);
+  border-radius: 14px;
+  font-size: 1.1rem;
   font-weight: 500;
   line-height: 1.65;
   color: var(--ink);
-  text-align: center;
 }
 
-.tech-sub { font-size: 1.5rem; margin-block-end: 1.8rem; }
+/* --- Dark band: our tech in three balanced columns --- */
+.dark-tech {
+  background:
+    radial-gradient(ellipse 900px 500px at 80% -10%, rgba(1, 160, 198, 0.25), transparent 60%),
+    #0b2036;
+  border-radius: 24px;
+  padding: clamp(2rem, 4.5vw, 4rem) clamp(1.2rem, 4vw, 3rem);
+  color: #dce9f5;
+}
 
-.tech-points {
+.dark-tech .kicker { background: rgba(1, 160, 198, 0.18); color: #7ee0f7; }
+.dark-tech h2 { color: #fff; margin-block-end: 0.6rem; }
+
+.dt-cols {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 2.2rem;
-  max-width: 66rem;
-  margin-inline: auto;
-  margin-block-end: 2.4rem;
+  margin-block-start: 2rem;
   text-align: start;
 }
 
-.tech-point-ico {
+.dt-col { padding-inline: 1.7rem; }
+.dt-col:first-child { padding-inline-start: 0; }
+.dt-col:last-child { padding-inline-end: 0; }
+.dt-col + .dt-col { border-inline-start: 1px solid rgba(255, 255, 255, 0.14); }
+
+.dt-ico {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.7rem;
-  height: 2.7rem;
-  border-radius: 12px;
-  background: rgba(1, 160, 198, 0.1);
-  color: var(--blue);
-  margin-block-end: 0.85rem;
+  width: 2.9rem;
+  height: 2.9rem;
+  border-radius: 14px;
+  background: rgba(1, 160, 198, 0.2);
+  color: #7ee0f7;
+  margin-block-end: 0.9rem;
 }
 
-.tech-point-ico svg { width: 1.4rem; height: 1.4rem; }
+.dt-ico svg { width: 1.5rem; height: 1.5rem; }
 
-.tech-point p { color: var(--muted); font-size: 0.95rem; }
+.dt-col p { color: #b9cde0; font-size: 0.94rem; text-align: justify; }
+
+.dt-close {
+  margin-block-start: 2.4rem;
+  padding-block-start: 1.8rem;
+  border-block-start: 1px solid rgba(255, 255, 255, 0.14);
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 2.4vw, 1.55rem);
+  background: linear-gradient(110deg, #37c2e8, #7ee0f7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
 
 @media (max-width: 52rem) {
-  .tech-points { grid-template-columns: 1fr; gap: 1.7rem; }
+  .dt-cols { grid-template-columns: 1fr; gap: 1.6rem; }
+  .dt-col { padding-inline: 0; }
+  .dt-col + .dt-col {
+    border-inline-start: none;
+    border-block-start: 1px solid rgba(255, 255, 255, 0.14);
+    padding-block-start: 1.6rem;
+  }
 }
 
 /* ===== Team ===== */
