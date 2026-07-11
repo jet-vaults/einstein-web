@@ -261,228 +261,14 @@ function init(renderer) {
     return out;
   }
 
-  // Margin-side shapes for the two full-width sections ("different" card
-  // and the dark tech band). Both sections span the whole 74rem container,
-  // so these shapes size themselves to the gap between the container edge
-  // and the screen edge, centered in that margin. Rebuilt on resize.
-  function marginFit(intrinsicW) {
-    const halfVis = 3.3137 * (window.innerWidth / window.innerHeight);
-    const cardHalfPx = Math.min(window.innerWidth, 1184) / 2 - 24;
-    const cardEdge = halfVis * (2 * cardHalfPx / window.innerWidth);
-    const avail = Math.max(halfVis - cardEdge, 0.9);
-    const SC = Math.min(Math.max(avail / (intrinsicW * 1.35), 0.32), 0.85);
-    return { SC, OFF_X: -(halfVis + cardEdge) / 2 };
-  }
-
-  // a side-view formula car, nose to the right, centered on the origin.
-  // The drive loop slides it across the bottom of the "different" section.
-  function shapeSideCar() {
-    const out = new Float32Array(N * 3);
-    const SC = isMobile ? 0.48 : 0.62;
-    const T = (x, y) => [x * SC, (y + 0.15) * SC];
-    const segs = [];
-    const M = (x0, y0, x1, y1) => segs.push([T(x0, y0), T(x1, y1)]);
-    const circle = (cx, cy, r, steps) => {
-      for (let k = 0; k < steps; k++) {
-        const a0 = Math.PI * 2 * k / steps, a1 = Math.PI * 2 * (k + 1) / steps;
-        segs.push([
-          T(cx + r * Math.cos(a0), cy + r * Math.sin(a0)),
-          T(cx + r * Math.cos(a1), cy + r * Math.sin(a1))
-        ]);
-      }
-    };
-    // floor
-    M(-1.55, -0.34, 1.5, -0.34);
-    // front wing + nose
-    M(1.5, -0.34, 1.82, -0.3); M(1.82, -0.42, 1.82, -0.18);
-    M(1.78, -0.16, 0.5, 0.08);
-    // cockpit + halo
-    M(0.5, 0.08, 0.32, 0.28);
-    for (let k = 0; k < 8; k++) {
-      const a0 = Math.PI * k / 8, a1 = Math.PI * (k + 1) / 8;
-      segs.push([
-        T(0.02 + 0.26 * Math.cos(a0), 0.28 + 0.26 * Math.sin(a0)),
-        T(0.02 + 0.26 * Math.cos(a1), 0.28 + 0.26 * Math.sin(a1))
-      ]);
-    }
-    M(-0.24, 0.28, -0.42, 0.12);
-    // engine cover down to the tail
-    M(-0.42, 0.12, -1.45, -0.02);
-    // rear wing
-    M(-1.5, -0.02, -1.58, 0.4);
-    M(-1.78, 0.42, -1.36, 0.42);
-    M(-1.74, 0.28, -1.4, 0.28);
-    // wheels
-    circle(0.98, -0.52, 0.33, 14); circle(0.98, -0.52, 0.12, 8);
-    circle(-1.02, -0.52, 0.33, 14); circle(-1.02, -0.52, 0.12, 8);
-    // speed lines trailing the tail
-    M(-2.25, 0.05, -1.9, 0.05); M(-2.1, -0.3, -1.75, -0.3);
-    sampleSegments(segs, out, 0, N, 0.012, 0.045);
-    return out;
-  }
-
-  // a vault door, face-on, for the dark "behind the scenes" tech band.
-  function shapeVault() {
-    const out = new Float32Array(N * 3);
-    const { SC, OFF_X } = marginFit(2.4);
-    const OFF_Y = 0.15;
-    const T = (x, y) => [x * SC + OFF_X, y * SC + OFF_Y];
-    const segs = [];
-    const arc = (cx, cy, r, steps) => {
-      for (let k = 0; k < steps; k++) {
-        const t0 = Math.PI * 2 * k / steps, t1 = Math.PI * 2 * (k + 1) / steps;
-        segs.push([
-          T(cx + r * Math.cos(t0), cy + r * Math.sin(t0)),
-          T(cx + r * Math.cos(t1), cy + r * Math.sin(t1))
-        ]);
-      }
-    };
-    // square door frame
-    segs.push(
-      [T(-1.2, 1.2), T(1.2, 1.2)], [T(1.2, 1.2), T(1.2, -1.2)],
-      [T(1.2, -1.2), T(-1.2, -1.2)], [T(-1.2, -1.2), T(-1.2, 1.2)]
-    );
-    // round door + handle wheel
-    arc(0, 0, 0.95, 26);
-    arc(0, 0, 0.55, 18);
-    // four wheel spokes from the hub out to the wheel rim
-    for (let k = 0; k < 4; k++) {
-      const a = Math.PI / 4 + k * Math.PI / 2;
-      segs.push([
-        T(0.12 * Math.cos(a), 0.12 * Math.sin(a)),
-        T(0.55 * Math.cos(a), 0.55 * Math.sin(a))
-      ]);
-    }
-    // hinges on the frame edge
-    segs.push([T(1.05, 0.55), T(1.2, 0.55)], [T(1.05, -0.55), T(1.2, -0.55)]);
-    sampleSegments(segs, out, 0, N, 0.014, 0.05);
-    return out;
-  }
-
   const browserDir = () => document.documentElement.dir === 'rtl' ? -1 : 1;
-  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeRing(), shapeStar(), shapeTeam(), shapeSideCar(), shapeVault()];
+  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeRing(), shapeStar(), shapeTeam()];
 
 
   // rebuild the browser shape when the language toggle flips direction
   new MutationObserver(() => {
     shapes[2].set(shapeBrowser(browserDir()));
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['dir'] });
-
-  /* ---------- scripted behaviors for the two full-width sections ----------
-     7 ("different"): scrolling down from the rocket launches it upward on a
-     smoke column, then a side-view car drives across the bottom in a loop.
-     8 (dark tech band): the cloud scatters and assembles into the vault. */
-
-  const anim = new Float32Array(N * 3);
-  const smokeStart = Math.floor(N * 0.62);
-  const smokeU = new Float32Array(N), smokeSX = new Float32Array(N), smokeSY = new Float32Array(N);
-  for (let i = 0; i < N; i++) {
-    smokeU[i] = Math.random();
-    smokeSX[i] = gauss(1);
-    smokeSY[i] = gauss(0.5);
-  }
-
-  let mode = 'normal', modeT0 = 0, lastDriveX = NaN;
-  let halfVisX = 3.3137 * (window.innerWidth / window.innerHeight);
-  const diffCard = document.querySelector('.diff-card');
-
-  function sectionChanged(prev, idx) {
-    if (idx === 7) {
-      mode = prev === 3 ? 'launch' : 'drive';
-      modeT0 = performance.now();
-      lastDriveX = NaN;
-    } else if (idx === 8) {
-      // the vault "locks shut": every particle starts pushed straight out
-      // from the door's center and converges inward — a closing mechanism,
-      // not a random scatter.
-      mode = 'normal';
-      const v = shapes[8];
-      const cx = marginFit(2.4).OFF_X, cy = 0.15;
-      for (let i = 0; i < N; i++) {
-        const dx = v[i * 3] - cx, dy = v[i * 3 + 1] - cy;
-        const len = Math.hypot(dx, dy) || 1;
-        const push = 0.7 + Math.random() * 0.9;
-        base[i * 3] = v[i * 3] + (dx / len) * push;
-        base[i * 3 + 1] = v[i * 3 + 1] + (dy / len) * push;
-        base[i * 3 + 2] = v[i * 3 + 2] + gauss(0.4);
-      }
-    } else {
-      mode = 'normal';
-    }
-  }
-
-  // the car's lane: centered in the gap between the card's bottom edge and
-  // the screen bottom, but always fully below the card so it never clips it
-  function carLaneY() {
-    const ih = window.innerHeight;
-    const r = diffCard && diffCard.getBoundingClientRect();
-    const bottomPx = r ? Math.min(r.bottom, ih) : ih * 0.72;
-    const s = isMobile ? 0.8 : 1;
-    const toWorld = (px) => (3.3137 - (px / ih) * 6.6274) / s;
-    let y = toWorld((bottomPx + ih) / 2);
-    y = Math.min(y, toWorld(bottomPx) - 0.55);
-    return Math.max(y, -3.3137 / s + 0.5);
-  }
-
-  function section7Target(now) {
-    if (mode === 'launch') {
-      const tt = (now - modeT0) / 1000;
-      const lift = 3.2 * tt * tt;
-      if (lift > 9.5) {
-        mode = 'drive'; modeT0 = now; lastDriveX = NaN;
-      } else {
-        const rocket = shapes[3];
-        // slide the pad into the visible margin beside the full-width card
-        // (the group holds its rocket-era ±2.6 offset during the launch)
-        const m = marginFit(2.4).OFF_X;
-        const rtl = document.documentElement.dir === 'rtl';
-        const shift = (rtl ? m : -m) - (rtl ? -2.6 : 2.6);
-        const padX = -0.35 + shift, padY = -1.15;   // the rocket's nozzle
-        for (let i = 0; i < smokeStart; i++) {
-          anim[i * 3] = rocket[i * 3] + shift;
-          anim[i * 3 + 1] = rocket[i * 3 + 1] + lift;
-          anim[i * 3 + 2] = rocket[i * 3 + 2];
-        }
-        const bloom = 0.35 + 0.8 * Math.min(tt, 1);
-        for (let i = smokeStart; i < N; i++) {
-          const u = smokeU[i];
-          let x, y;
-          if (u < 0.35) {                   // billowing cloud at the pad
-            x = padX + smokeSX[i] * bloom;
-            y = padY + smokeSY[i] * bloom * 0.5;
-          } else {                          // column chasing the rocket
-            const uu = (u - 0.35) / 0.65;
-            y = padY + uu * Math.max(lift - 1.0, 0.1);
-            x = padX + smokeSX[i] * (0.18 + (1 - uu) * 0.42);
-          }
-          anim[i * 3] = x;
-          anim[i * 3 + 1] = y;
-          anim[i * 3 + 2] = smokeSY[i] * 0.8;
-        }
-        return anim;
-      }
-    }
-    // drive: cross the screen left-to-right, pause off-screen, repeat
-    const tt = (now - modeT0) / 1000;
-    const halfSpan = halfVisX * (isMobile ? 1.35 : 1.05) + 2.2;
-    const CROSS = 7.5, PAUSE = 1.8;
-    const ph = tt % (CROSS + PAUSE);
-    const x = ph < CROSS ? -halfSpan + 2 * halfSpan * (ph / CROSS) : -halfSpan;
-    if (!isNaN(lastDriveX) && Math.abs(x - lastDriveX) > 4) {
-      // wrapped around while off-screen: teleport the cloud with the car
-      // so it re-enters from the left instead of streaking backwards
-      const dx = x - lastDriveX;
-      for (let i = 0; i < N; i++) base[i * 3] += dx;
-    }
-    lastDriveX = x;
-    const car = shapes[7], y = carLaneY();
-    for (let i = 0; i < N; i++) {
-      anim[i * 3] = car[i * 3] + x;
-      anim[i * 3 + 1] = car[i * 3 + 1] + y;
-      anim[i * 3 + 2] = car[i * 3 + 2];
-    }
-    return anim;
-  }
 
   /* ---------- geometry, colors, material ---------- */
 
@@ -547,12 +333,6 @@ function init(renderer) {
     base.set(shapes[forcedShape]);
   }
 
-  // deep link straight into the "different" section: start the car loop
-  if (targetIdx === 7) {
-    mode = 'drive';
-    modeT0 = performance.now();
-  }
-
   function pickSection() {
     const mid = window.innerHeight / 2;
     for (const s of sections) {
@@ -567,10 +347,8 @@ function init(renderer) {
     const idx = pickSection();
     if (idx !== targetIdx) {
       // gentle glide between the closing sections, punchier elsewhere
-      scale = (idx >= 4 && idx !== 5) ? 0.94 : 0.78;
-      const prev = targetIdx;
+      scale = (idx === 4 || idx === 6) ? 0.94 : 0.78;
       targetIdx = idx;
-      sectionChanged(prev, idx);
     }
     spinMomentum += (window.scrollY - lastScrollY) * 0.00035;
     lastScrollY = window.scrollY;
@@ -588,9 +366,7 @@ function init(renderer) {
 
   /* ---------- render loop ---------- */
 
-  group.position.x = (isMobile || (targetIdx >= 4 && targetIdx !== 5))
-    ? 0
-    : (document.documentElement.dir === 'rtl' ? -2.6 : 2.6) * ((targetIdx === 1 || targetIdx === 5) ? -1 : 1);
+  group.position.x = (isMobile ? 0 : (document.documentElement.dir === 'rtl' ? -2.6 : 2.6)) * ((targetIdx === 1 || targetIdx === 5) ? -1 : 1);
 
   const clock = new THREE.Clock();
   let running = true;
@@ -613,8 +389,6 @@ function init(renderer) {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    halfVisX = 3.3137 * (window.innerWidth / window.innerHeight);
-    shapes[8].set(shapeVault());   // refit the margin vault
   });
 
   function render() {
@@ -623,12 +397,9 @@ function init(renderer) {
 
     const dt = Math.min(clock.getDelta(), 0.05);
     const t = clock.elapsedTime;
-    const target = targetIdx === 7 ? section7Target(performance.now()) : shapes[targetIdx];
-    // slower, smoother morph into the team streams and the contact ring;
-    // the scripted launch/drive/assembly track their targets tightly so
-    // the shapes stay crisp while they move
-    const kRate = targetIdx === 7 ? (mode === 'drive' ? 6.5 : 4.5) : targetIdx === 8 ? 3.4
-      : (targetIdx >= 4 && targetIdx !== 5) ? 2.1 : 3.4;
+    const target = shapes[targetIdx];
+    // slower, smoother morph into the team streams and the contact ring
+    const kRate = (targetIdx === 4 || targetIdx === 6) ? 2.1 : 3.4;
     const k = 1 - Math.exp(-dt * kRate);
 
     // electrons orbit the nucleus slowly, and each blob swirls around itself
@@ -648,9 +419,8 @@ function init(renderer) {
 
     for (let i = 0; i < N * 3; i++) base[i] += (target[i] - base[i]) * k;
 
-    // the car and vault need crisp detail: smaller dots, calmer wobble
-    // (the rocket launch keeps the fat dots so the smoke stays soft)
-    const fine = (targetIdx === 7 && mode !== 'launch') || targetIdx === 8;
+    // the handshake needs crisp detail: smaller dots, calmer wobble
+    const fine = false;
     const sizeTarget = fine ? (isMobile ? 0.06 : 0.045) : (isMobile ? 0.085 : 0.065);
     mat.size += (sizeTarget - mat.size) * (1 - Math.exp(-dt * 2.5));
     const amp = fine ? 0.009 : 0.024;
@@ -663,8 +433,8 @@ function init(renderer) {
     geo.attributes.position.needsUpdate = true;
 
     spinMomentum *= Math.exp(-dt * 2.2);
-    // the contact ring, team people and margin shapes stay nearly flat
-    const rotAmp = (targetIdx >= 4 && targetIdx !== 5) ? 0.2 : 1;
+    // the contact handshake and team people stay nearly flat
+    const rotAmp = (targetIdx === 4 || targetIdx === 6) ? 0.2 : 1;
     group.rotation.y += ((Math.sin(t * 0.1) * 0.16 + mx * 0.3) * rotAmp + spinMomentum - group.rotation.y) * (1 - Math.exp(-dt * 2.5));
     group.rotation.y += spinMomentum * dt * 18;
     group.rotation.x += (my * 0.14 * rotAmp - group.rotation.x) * (1 - Math.exp(-dt * 2.5));
@@ -674,11 +444,9 @@ function init(renderer) {
     group.scale.set(s, s, s);
 
     const rtl = document.documentElement.dir === 'rtl';
-    // services & reviews swap sides; team, contact & margin shapes keep their
-    // baked-in offset. During the launch the group stays at the rocket-era
-    // offset so the liftoff plays out in the visible margin, not behind the card.
+    // services & reviews swap sides; team & contact keep their baked-in offset
     const flip = (targetIdx === 1 || targetIdx === 5) ? -1 : 1;
-    const centered = (targetIdx >= 4 && targetIdx !== 5) && !(targetIdx === 7 && mode === 'launch');
+    const centered = targetIdx === 4 || targetIdx === 6;
     const tx = (isMobile || centered) ? 0 : (rtl ? -2.6 : 2.6) * flip;
     group.position.x += (tx - group.position.x) * (1 - Math.exp(-dt * 2.0));
 
