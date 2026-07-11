@@ -278,7 +278,7 @@ function init(renderer) {
   // The drive loop slides it across the bottom of the "different" section.
   function shapeSideCar() {
     const out = new Float32Array(N * 3);
-    const SC = isMobile ? 0.55 : 0.8;
+    const SC = isMobile ? 0.48 : 0.62;
     const T = (x, y) => [x * SC, (y + 0.15) * SC];
     const segs = [];
     const M = (x0, y0, x1, y1) => segs.push([T(x0, y0), T(x1, y1)]);
@@ -316,8 +316,8 @@ function init(renderer) {
     circle(0.98, -0.52, 0.33, 14); circle(0.98, -0.52, 0.12, 8);
     circle(-1.02, -0.52, 0.33, 14); circle(-1.02, -0.52, 0.12, 8);
     // speed lines trailing the tail
-    M(-2.35, 0.1, -1.95, 0.1); M(-2.2, -0.15, -1.85, -0.15); M(-2.45, -0.4, -2.0, -0.4);
-    sampleSegments(segs, out, 0, N, 0.018, 0.06);
+    M(-2.25, 0.05, -1.9, 0.05); M(-2.1, -0.3, -1.75, -0.3);
+    sampleSegments(segs, out, 0, N, 0.012, 0.045);
     return out;
   }
 
@@ -355,7 +355,7 @@ function init(renderer) {
     }
     // hinges on the frame edge
     segs.push([T(1.05, 0.55), T(1.2, 0.55)], [T(1.05, -0.55), T(1.2, -0.55)]);
-    sampleSegments(segs, out, 0, N, 0.02, 0.07);
+    sampleSegments(segs, out, 0, N, 0.014, 0.05);
     return out;
   }
 
@@ -392,54 +392,68 @@ function init(renderer) {
       modeT0 = performance.now();
       lastDriveX = NaN;
     } else if (idx === 8) {
-      // assemble in place: scatter the cloud around the vault first, then
-      // let the regular easing pull every particle home.
+      // the vault "locks shut": every particle starts pushed straight out
+      // from the door's center and converges inward — a closing mechanism,
+      // not a random scatter.
       mode = 'normal';
       const v = shapes[8];
+      const cx = marginFit(2.4).OFF_X, cy = 0.15;
       for (let i = 0; i < N; i++) {
-        base[i * 3] = v[i * 3] + gauss(1.9);
-        base[i * 3 + 1] = v[i * 3 + 1] + gauss(1.9);
-        base[i * 3 + 2] = v[i * 3 + 2] + gauss(1.1);
+        const dx = v[i * 3] - cx, dy = v[i * 3 + 1] - cy;
+        const len = Math.hypot(dx, dy) || 1;
+        const push = 0.7 + Math.random() * 0.9;
+        base[i * 3] = v[i * 3] + (dx / len) * push;
+        base[i * 3 + 1] = v[i * 3 + 1] + (dy / len) * push;
+        base[i * 3 + 2] = v[i * 3 + 2] + gauss(0.4);
       }
     } else {
       mode = 'normal';
     }
   }
 
-  // the car's lane: the gap between the card's bottom edge and the screen
+  // the car's lane: centered in the gap between the card's bottom edge and
+  // the screen bottom, but always fully below the card so it never clips it
   function carLaneY() {
     const ih = window.innerHeight;
     const r = diffCard && diffCard.getBoundingClientRect();
-    const gapPx = r ? (Math.min(r.bottom, ih) + ih) / 2 : ih * 0.86;
+    const bottomPx = r ? Math.min(r.bottom, ih) : ih * 0.72;
     const s = isMobile ? 0.8 : 1;
-    return Math.max((3.3137 - (gapPx / ih) * 6.6274) / s, -3.3137 / s + 0.8);
+    const toWorld = (px) => (3.3137 - (px / ih) * 6.6274) / s;
+    let y = toWorld((bottomPx + ih) / 2);
+    y = Math.min(y, toWorld(bottomPx) - 0.55);
+    return Math.max(y, -3.3137 / s + 0.5);
   }
 
   function section7Target(now) {
     if (mode === 'launch') {
       const tt = (now - modeT0) / 1000;
-      const lift = 4.5 * tt * tt;
+      const lift = 3.2 * tt * tt;
       if (lift > 9.5) {
         mode = 'drive'; modeT0 = now; lastDriveX = NaN;
       } else {
         const rocket = shapes[3];
-        const padX = -0.35, padY = -1.15;   // the rocket's nozzle
+        // slide the pad into the visible margin beside the full-width card
+        // (the group holds its rocket-era ±2.6 offset during the launch)
+        const m = marginFit(2.4).OFF_X;
+        const rtl = document.documentElement.dir === 'rtl';
+        const shift = (rtl ? m : -m) - (rtl ? -2.6 : 2.6);
+        const padX = -0.35 + shift, padY = -1.15;   // the rocket's nozzle
         for (let i = 0; i < smokeStart; i++) {
-          anim[i * 3] = rocket[i * 3];
+          anim[i * 3] = rocket[i * 3] + shift;
           anim[i * 3 + 1] = rocket[i * 3 + 1] + lift;
           anim[i * 3 + 2] = rocket[i * 3 + 2];
         }
-        const bloom = 0.4 + 1.7 * Math.min(tt, 1);
+        const bloom = 0.35 + 0.8 * Math.min(tt, 1);
         for (let i = smokeStart; i < N; i++) {
           const u = smokeU[i];
           let x, y;
           if (u < 0.35) {                   // billowing cloud at the pad
             x = padX + smokeSX[i] * bloom;
-            y = padY + smokeSY[i] * bloom * 0.8;
+            y = padY + smokeSY[i] * bloom * 0.5;
           } else {                          // column chasing the rocket
             const uu = (u - 0.35) / 0.65;
             y = padY + uu * Math.max(lift - 1.0, 0.1);
-            x = padX + smokeSX[i] * (0.22 + (1 - uu) * 0.6);
+            x = padX + smokeSX[i] * (0.18 + (1 - uu) * 0.42);
           }
           anim[i * 3] = x;
           anim[i * 3 + 1] = y;
@@ -451,7 +465,7 @@ function init(renderer) {
     // drive: cross the screen left-to-right, pause off-screen, repeat
     const tt = (now - modeT0) / 1000;
     const halfSpan = halfVisX * (isMobile ? 1.35 : 1.05) + 2.2;
-    const CROSS = 6, PAUSE = 1.6;
+    const CROSS = 7.5, PAUSE = 1.8;
     const ph = tt % (CROSS + PAUSE);
     const x = ph < CROSS ? -halfSpan + 2 * halfSpan * (ph / CROSS) : -halfSpan;
     if (!isNaN(lastDriveX) && Math.abs(x - lastDriveX) > 4) {
@@ -611,8 +625,9 @@ function init(renderer) {
     const t = clock.elapsedTime;
     const target = targetIdx === 7 ? section7Target(performance.now()) : shapes[targetIdx];
     // slower, smoother morph into the team streams and the contact ring;
-    // the rocket launch tracks its fast-rising target much more tightly
-    const kRate = (targetIdx === 7 && mode === 'launch') ? 4.5
+    // the scripted launch/drive/assembly track their targets tightly so
+    // the shapes stay crisp while they move
+    const kRate = targetIdx === 7 ? (mode === 'drive' ? 6.5 : 4.5) : targetIdx === 8 ? 3.4
       : (targetIdx >= 4 && targetIdx !== 5) ? 2.1 : 3.4;
     const k = 1 - Math.exp(-dt * kRate);
 
@@ -659,9 +674,11 @@ function init(renderer) {
     group.scale.set(s, s, s);
 
     const rtl = document.documentElement.dir === 'rtl';
-    // services & reviews swap sides; team, contact & margin shapes keep their baked-in offset
+    // services & reviews swap sides; team, contact & margin shapes keep their
+    // baked-in offset. During the launch the group stays at the rocket-era
+    // offset so the liftoff plays out in the visible margin, not behind the card.
     const flip = (targetIdx === 1 || targetIdx === 5) ? -1 : 1;
-    const centered = targetIdx >= 4 && targetIdx !== 5;
+    const centered = (targetIdx >= 4 && targetIdx !== 5) && !(targetIdx === 7 && mode === 'launch');
     const tx = (isMobile || centered) ? 0 : (rtl ? -2.6 : 2.6) * flip;
     group.position.x += (tx - group.position.x) * (1 - Math.exp(-dt * 2.0));
 
