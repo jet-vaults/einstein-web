@@ -261,8 +261,96 @@ function init(renderer) {
     return out;
   }
 
+  // Margin-side shapes for the two full-width sections ("different" card
+  // and the dark tech band). Both sections span the whole 74rem container,
+  // so these shapes size themselves to the gap between the container edge
+  // and the screen edge, centered in that margin. Rebuilt on resize.
+  function marginFit(intrinsicW) {
+    const halfVis = 3.3137 * (window.innerWidth / window.innerHeight);
+    const cardHalfPx = Math.min(window.innerWidth, 1184) / 2 - 24;
+    const cardEdge = halfVis * (2 * cardHalfPx / window.innerWidth);
+    const avail = Math.max(halfVis - cardEdge, 0.9);
+    const SC = Math.min(Math.max(avail / (intrinsicW * 1.35), 0.32), 0.85);
+    return { SC, OFF_X: -(halfVis + cardEdge) / 2 };
+  }
+
+  // a formula car, top-down and nose-up, for the "our websites are
+  // different" section — the electric sports car of the analogy.
+  function shapeFormula() {
+    const out = new Float32Array(N * 3);
+    const { SC, OFF_X } = marginFit(1.5);
+    const OFF_Y = 0.1;
+    const T = (x, y) => [x * SC + OFF_X, y * SC + OFF_Y];
+    const segs = [];
+    const M = (x0, y0, x1, y1) => segs.push([T(x0, y0), T(x1, y1)]);
+    // front wing + endplates
+    M(-0.72, 1.42, 0.72, 1.42); M(-0.72, 1.30, -0.72, 1.54); M(0.72, 1.30, 0.72, 1.54);
+    // nose cone widening into the cockpit
+    M(-0.10, 1.40, 0.10, 1.40);
+    M(-0.10, 1.40, -0.26, 0.55); M(0.10, 1.40, 0.26, 0.55);
+    // body sides + sidepods
+    M(-0.26, 0.55, -0.30, -0.55); M(0.26, 0.55, 0.30, -0.55);
+    M(-0.30, 0.10, -0.52, -0.05); M(0.30, 0.10, 0.52, -0.05);
+    M(-0.52, -0.05, -0.52, -0.62); M(0.52, -0.05, 0.52, -0.62);
+    M(-0.52, -0.62, -0.30, -0.72); M(0.52, -0.62, 0.30, -0.72);
+    // tail + rear wing
+    M(-0.30, -0.72, -0.22, -1.18); M(0.30, -0.72, 0.22, -1.18);
+    M(-0.22, -1.18, 0.22, -1.18);
+    M(-0.66, -1.38, 0.66, -1.38); M(-0.66, -1.26, -0.66, -1.50); M(0.66, -1.26, 0.66, -1.50);
+    // cockpit opening
+    M(-0.14, 0.42, 0.14, 0.42); M(-0.14, 0.05, 0.14, 0.05);
+    // wheels: slim outlined slabs with one core line
+    const wheel = (cx, cy, w, h) => {
+      M(cx - w, cy - h, cx - w, cy + h); M(cx + w, cy - h, cx + w, cy + h);
+      M(cx - w, cy + h, cx + w, cy + h); M(cx - w, cy - h, cx + w, cy - h);
+      M(cx, cy - h, cx, cy + h);
+    };
+    wheel(-0.62, 0.82, 0.11, 0.20); wheel(0.62, 0.82, 0.11, 0.20);
+    wheel(-0.66, -0.95, 0.12, 0.23); wheel(0.66, -0.95, 0.12, 0.23);
+    sampleSegments(segs, out, 0, N, 0.02, 0.07);
+    return out;
+  }
+
+  // a vault door, face-on, for the dark "behind the scenes" tech band.
+  function shapeVault() {
+    const out = new Float32Array(N * 3);
+    const { SC, OFF_X } = marginFit(2.4);
+    const OFF_Y = 0.15;
+    const T = (x, y) => [x * SC + OFF_X, y * SC + OFF_Y];
+    const segs = [];
+    const arc = (cx, cy, r, steps) => {
+      for (let k = 0; k < steps; k++) {
+        const t0 = Math.PI * 2 * k / steps, t1 = Math.PI * 2 * (k + 1) / steps;
+        segs.push([
+          T(cx + r * Math.cos(t0), cy + r * Math.sin(t0)),
+          T(cx + r * Math.cos(t1), cy + r * Math.sin(t1))
+        ]);
+      }
+    };
+    // square door frame
+    segs.push(
+      [T(-1.2, 1.2), T(1.2, 1.2)], [T(1.2, 1.2), T(1.2, -1.2)],
+      [T(1.2, -1.2), T(-1.2, -1.2)], [T(-1.2, -1.2), T(-1.2, 1.2)]
+    );
+    // round door + handle wheel
+    arc(0, 0, 0.95, 26);
+    arc(0, 0, 0.55, 18);
+    // four wheel spokes from the hub out to the wheel rim
+    for (let k = 0; k < 4; k++) {
+      const a = Math.PI / 4 + k * Math.PI / 2;
+      segs.push([
+        T(0.12 * Math.cos(a), 0.12 * Math.sin(a)),
+        T(0.55 * Math.cos(a), 0.55 * Math.sin(a))
+      ]);
+    }
+    // hinges on the frame edge
+    segs.push([T(1.05, 0.55), T(1.2, 0.55)], [T(1.05, -0.55), T(1.2, -0.55)]);
+    sampleSegments(segs, out, 0, N, 0.02, 0.07);
+    return out;
+  }
+
   const browserDir = () => document.documentElement.dir === 'rtl' ? -1 : 1;
-  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeRing(), shapeStar(), shapeTeam()];
+  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeRing(), shapeStar(), shapeTeam(), shapeFormula(), shapeVault()];
 
 
   // rebuild the browser shape when the language toggle flips direction
@@ -347,7 +435,7 @@ function init(renderer) {
     const idx = pickSection();
     if (idx !== targetIdx) {
       // gentle glide between the closing sections, punchier elsewhere
-      scale = (idx === 4 || idx === 6) ? 0.94 : 0.78;
+      scale = (idx >= 4 && idx !== 5) ? 0.94 : 0.78;
       targetIdx = idx;
     }
     spinMomentum += (window.scrollY - lastScrollY) * 0.00035;
@@ -366,7 +454,9 @@ function init(renderer) {
 
   /* ---------- render loop ---------- */
 
-  group.position.x = (isMobile ? 0 : (document.documentElement.dir === 'rtl' ? -2.6 : 2.6)) * ((targetIdx === 1 || targetIdx === 5) ? -1 : 1);
+  group.position.x = (isMobile || (targetIdx >= 4 && targetIdx !== 5))
+    ? 0
+    : (document.documentElement.dir === 'rtl' ? -2.6 : 2.6) * ((targetIdx === 1 || targetIdx === 5) ? -1 : 1);
 
   const clock = new THREE.Clock();
   let running = true;
@@ -389,6 +479,8 @@ function init(renderer) {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    shapes[7].set(shapeFormula());   // refit the margin shapes
+    shapes[8].set(shapeVault());
   });
 
   function render() {
@@ -399,7 +491,7 @@ function init(renderer) {
     const t = clock.elapsedTime;
     const target = shapes[targetIdx];
     // slower, smoother morph into the team streams and the contact ring
-    const kRate = (targetIdx === 4 || targetIdx === 6) ? 2.1 : 3.4;
+    const kRate = (targetIdx >= 4 && targetIdx !== 5) ? 2.1 : 3.4;
     const k = 1 - Math.exp(-dt * kRate);
 
     // electrons orbit the nucleus slowly, and each blob swirls around itself
@@ -419,8 +511,9 @@ function init(renderer) {
 
     for (let i = 0; i < N * 3; i++) base[i] += (target[i] - base[i]) * k;
 
-    // the handshake needs crisp detail: smaller dots, calmer wobble
-    const fine = false;
+    // the margin shapes (formula car, vault) need crisp detail:
+    // smaller dots, calmer wobble
+    const fine = targetIdx === 7 || targetIdx === 8;
     const sizeTarget = fine ? (isMobile ? 0.06 : 0.045) : (isMobile ? 0.085 : 0.065);
     mat.size += (sizeTarget - mat.size) * (1 - Math.exp(-dt * 2.5));
     const amp = fine ? 0.009 : 0.024;
@@ -433,8 +526,8 @@ function init(renderer) {
     geo.attributes.position.needsUpdate = true;
 
     spinMomentum *= Math.exp(-dt * 2.2);
-    // the contact handshake and team people stay nearly flat
-    const rotAmp = (targetIdx === 4 || targetIdx === 6) ? 0.2 : 1;
+    // the contact ring, team people and margin shapes stay nearly flat
+    const rotAmp = (targetIdx >= 4 && targetIdx !== 5) ? 0.2 : 1;
     group.rotation.y += ((Math.sin(t * 0.1) * 0.16 + mx * 0.3) * rotAmp + spinMomentum - group.rotation.y) * (1 - Math.exp(-dt * 2.5));
     group.rotation.y += spinMomentum * dt * 18;
     group.rotation.x += (my * 0.14 * rotAmp - group.rotation.x) * (1 - Math.exp(-dt * 2.5));
@@ -444,9 +537,9 @@ function init(renderer) {
     group.scale.set(s, s, s);
 
     const rtl = document.documentElement.dir === 'rtl';
-    // services & reviews swap sides; team & contact keep their baked-in offset
+    // services & reviews swap sides; team, contact & margin shapes keep their baked-in offset
     const flip = (targetIdx === 1 || targetIdx === 5) ? -1 : 1;
-    const centered = targetIdx === 4 || targetIdx === 6;
+    const centered = targetIdx >= 4 && targetIdx !== 5;
     const tx = (isMobile || centered) ? 0 : (rtl ? -2.6 : 2.6) * flip;
     group.position.x += (tx - group.position.x) * (1 - Math.exp(-dt * 2.0));
 
