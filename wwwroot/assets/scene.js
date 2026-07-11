@@ -261,8 +261,24 @@ function init(renderer) {
     return out;
   }
 
+  // a loose field of ambient dots hugging the left and right screen edges,
+  // keeping the center clear for the open full-width text sections.
+  // Rebuilt on resize so the bands track the actual screen margins.
+  function shapeEdges() {
+    const out = new Float32Array(N * 3);
+    const halfVis = 3.3137 * (window.innerWidth / window.innerHeight);
+    const inner = isMobile ? halfVis * 1.3 : Math.max(halfVis * 0.72, halfVis - 1.6);
+    for (let i = 0; i < N; i++) {
+      const side = i % 2 === 0 ? -1 : 1;
+      out[i * 3] = side * rand(inner, halfVis + 0.6);
+      out[i * 3 + 1] = rand(-3.1, 3.1);
+      out[i * 3 + 2] = gauss(0.3);
+    }
+    return out;
+  }
+
   const browserDir = () => document.documentElement.dir === 'rtl' ? -1 : 1;
-  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeRing(), shapeStar(), shapeTeam()];
+  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeRing(), shapeStar(), shapeTeam(), shapeEdges()];
 
 
   // rebuild the browser shape when the language toggle flips direction
@@ -389,6 +405,7 @@ function init(renderer) {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    shapes[7].set(shapeEdges());   // refit the edge bands to the new margins
   });
 
   function render() {
@@ -433,10 +450,10 @@ function init(renderer) {
     geo.attributes.position.needsUpdate = true;
 
     spinMomentum *= Math.exp(-dt * 2.2);
-    // the contact handshake and team people stay nearly flat
-    const rotAmp = (targetIdx === 4 || targetIdx === 6) ? 0.2 : 1;
-    group.rotation.y += ((Math.sin(t * 0.1) * 0.16 + mx * 0.3) * rotAmp + spinMomentum - group.rotation.y) * (1 - Math.exp(-dt * 2.5));
-    group.rotation.y += spinMomentum * dt * 18;
+    // the contact handshake, team people and edge bands stay nearly flat
+    const rotAmp = (targetIdx === 4 || targetIdx === 6 || targetIdx === 7) ? 0.2 : 1;
+    group.rotation.y += ((Math.sin(t * 0.1) * 0.16 + mx * 0.3 + spinMomentum) * rotAmp - group.rotation.y) * (1 - Math.exp(-dt * 2.5));
+    group.rotation.y += spinMomentum * rotAmp * dt * 18;
     group.rotation.x += (my * 0.14 * rotAmp - group.rotation.x) * (1 - Math.exp(-dt * 2.5));
 
     scale += (1 - scale) * (1 - Math.exp(-dt * 3.0));
@@ -444,9 +461,9 @@ function init(renderer) {
     group.scale.set(s, s, s);
 
     const rtl = document.documentElement.dir === 'rtl';
-    // services & reviews swap sides; team & contact keep their baked-in offset
+    // services & reviews swap sides; team, contact & edge bands stay centered
     const flip = (targetIdx === 1 || targetIdx === 5) ? -1 : 1;
-    const centered = targetIdx === 4 || targetIdx === 6;
+    const centered = targetIdx === 4 || targetIdx === 6 || targetIdx === 7;
     const tx = (isMobile || centered) ? 0 : (rtl ? -2.6 : 2.6) * flip;
     group.position.x += (tx - group.position.x) * (1 - Math.exp(-dt * 2.0));
 
