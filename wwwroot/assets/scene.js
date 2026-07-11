@@ -274,40 +274,50 @@ function init(renderer) {
     return { SC, OFF_X: -(halfVis + cardEdge) / 2 };
   }
 
-  // a formula car, top-down and nose-up, for the "our websites are
-  // different" section — the electric sports car of the analogy.
-  function shapeFormula() {
+  // a side-view formula car, nose to the right, centered on the origin.
+  // The drive loop slides it across the bottom of the "different" section.
+  function shapeSideCar() {
     const out = new Float32Array(N * 3);
-    const { SC, OFF_X } = marginFit(1.5);
-    const OFF_Y = 0.1;
-    const T = (x, y) => [x * SC + OFF_X, y * SC + OFF_Y];
+    const SC = isMobile ? 0.55 : 0.8;
+    const T = (x, y) => [x * SC, (y + 0.15) * SC];
     const segs = [];
     const M = (x0, y0, x1, y1) => segs.push([T(x0, y0), T(x1, y1)]);
-    // front wing + endplates
-    M(-0.72, 1.42, 0.72, 1.42); M(-0.72, 1.30, -0.72, 1.54); M(0.72, 1.30, 0.72, 1.54);
-    // nose cone widening into the cockpit
-    M(-0.10, 1.40, 0.10, 1.40);
-    M(-0.10, 1.40, -0.26, 0.55); M(0.10, 1.40, 0.26, 0.55);
-    // body sides + sidepods
-    M(-0.26, 0.55, -0.30, -0.55); M(0.26, 0.55, 0.30, -0.55);
-    M(-0.30, 0.10, -0.52, -0.05); M(0.30, 0.10, 0.52, -0.05);
-    M(-0.52, -0.05, -0.52, -0.62); M(0.52, -0.05, 0.52, -0.62);
-    M(-0.52, -0.62, -0.30, -0.72); M(0.52, -0.62, 0.30, -0.72);
-    // tail + rear wing
-    M(-0.30, -0.72, -0.22, -1.18); M(0.30, -0.72, 0.22, -1.18);
-    M(-0.22, -1.18, 0.22, -1.18);
-    M(-0.66, -1.38, 0.66, -1.38); M(-0.66, -1.26, -0.66, -1.50); M(0.66, -1.26, 0.66, -1.50);
-    // cockpit opening
-    M(-0.14, 0.42, 0.14, 0.42); M(-0.14, 0.05, 0.14, 0.05);
-    // wheels: slim outlined slabs with one core line
-    const wheel = (cx, cy, w, h) => {
-      M(cx - w, cy - h, cx - w, cy + h); M(cx + w, cy - h, cx + w, cy + h);
-      M(cx - w, cy + h, cx + w, cy + h); M(cx - w, cy - h, cx + w, cy - h);
-      M(cx, cy - h, cx, cy + h);
+    const circle = (cx, cy, r, steps) => {
+      for (let k = 0; k < steps; k++) {
+        const a0 = Math.PI * 2 * k / steps, a1 = Math.PI * 2 * (k + 1) / steps;
+        segs.push([
+          T(cx + r * Math.cos(a0), cy + r * Math.sin(a0)),
+          T(cx + r * Math.cos(a1), cy + r * Math.sin(a1))
+        ]);
+      }
     };
-    wheel(-0.62, 0.82, 0.11, 0.20); wheel(0.62, 0.82, 0.11, 0.20);
-    wheel(-0.66, -0.95, 0.12, 0.23); wheel(0.66, -0.95, 0.12, 0.23);
-    sampleSegments(segs, out, 0, N, 0.02, 0.07);
+    // floor
+    M(-1.55, -0.34, 1.5, -0.34);
+    // front wing + nose
+    M(1.5, -0.34, 1.82, -0.3); M(1.82, -0.42, 1.82, -0.18);
+    M(1.78, -0.16, 0.5, 0.08);
+    // cockpit + halo
+    M(0.5, 0.08, 0.32, 0.28);
+    for (let k = 0; k < 8; k++) {
+      const a0 = Math.PI * k / 8, a1 = Math.PI * (k + 1) / 8;
+      segs.push([
+        T(0.02 + 0.26 * Math.cos(a0), 0.28 + 0.26 * Math.sin(a0)),
+        T(0.02 + 0.26 * Math.cos(a1), 0.28 + 0.26 * Math.sin(a1))
+      ]);
+    }
+    M(-0.24, 0.28, -0.42, 0.12);
+    // engine cover down to the tail
+    M(-0.42, 0.12, -1.45, -0.02);
+    // rear wing
+    M(-1.5, -0.02, -1.58, 0.4);
+    M(-1.78, 0.42, -1.36, 0.42);
+    M(-1.74, 0.28, -1.4, 0.28);
+    // wheels
+    circle(0.98, -0.52, 0.33, 14); circle(0.98, -0.52, 0.12, 8);
+    circle(-1.02, -0.52, 0.33, 14); circle(-1.02, -0.52, 0.12, 8);
+    // speed lines trailing the tail
+    M(-2.35, 0.1, -1.95, 0.1); M(-2.2, -0.15, -1.85, -0.15); M(-2.45, -0.4, -2.0, -0.4);
+    sampleSegments(segs, out, 0, N, 0.018, 0.06);
     return out;
   }
 
@@ -350,13 +360,115 @@ function init(renderer) {
   }
 
   const browserDir = () => document.documentElement.dir === 'rtl' ? -1 : 1;
-  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeRing(), shapeStar(), shapeTeam(), shapeFormula(), shapeVault()];
+  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeRing(), shapeStar(), shapeTeam(), shapeSideCar(), shapeVault()];
 
 
   // rebuild the browser shape when the language toggle flips direction
   new MutationObserver(() => {
     shapes[2].set(shapeBrowser(browserDir()));
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['dir'] });
+
+  /* ---------- scripted behaviors for the two full-width sections ----------
+     7 ("different"): scrolling down from the rocket launches it upward on a
+     smoke column, then a side-view car drives across the bottom in a loop.
+     8 (dark tech band): the cloud scatters and assembles into the vault. */
+
+  const anim = new Float32Array(N * 3);
+  const smokeStart = Math.floor(N * 0.62);
+  const smokeU = new Float32Array(N), smokeSX = new Float32Array(N), smokeSY = new Float32Array(N);
+  for (let i = 0; i < N; i++) {
+    smokeU[i] = Math.random();
+    smokeSX[i] = gauss(1);
+    smokeSY[i] = gauss(0.5);
+  }
+
+  let mode = 'normal', modeT0 = 0, lastDriveX = NaN;
+  let halfVisX = 3.3137 * (window.innerWidth / window.innerHeight);
+  const diffCard = document.querySelector('.diff-card');
+
+  function sectionChanged(prev, idx) {
+    if (idx === 7) {
+      mode = prev === 3 ? 'launch' : 'drive';
+      modeT0 = performance.now();
+      lastDriveX = NaN;
+    } else if (idx === 8) {
+      // assemble in place: scatter the cloud around the vault first, then
+      // let the regular easing pull every particle home.
+      mode = 'normal';
+      const v = shapes[8];
+      for (let i = 0; i < N; i++) {
+        base[i * 3] = v[i * 3] + gauss(1.9);
+        base[i * 3 + 1] = v[i * 3 + 1] + gauss(1.9);
+        base[i * 3 + 2] = v[i * 3 + 2] + gauss(1.1);
+      }
+    } else {
+      mode = 'normal';
+    }
+  }
+
+  // the car's lane: the gap between the card's bottom edge and the screen
+  function carLaneY() {
+    const ih = window.innerHeight;
+    const r = diffCard && diffCard.getBoundingClientRect();
+    const gapPx = r ? (Math.min(r.bottom, ih) + ih) / 2 : ih * 0.86;
+    const s = isMobile ? 0.8 : 1;
+    return Math.max((3.3137 - (gapPx / ih) * 6.6274) / s, -3.3137 / s + 0.8);
+  }
+
+  function section7Target(now) {
+    if (mode === 'launch') {
+      const tt = (now - modeT0) / 1000;
+      const lift = 4.5 * tt * tt;
+      if (lift > 9.5) {
+        mode = 'drive'; modeT0 = now; lastDriveX = NaN;
+      } else {
+        const rocket = shapes[3];
+        const padX = -0.35, padY = -1.15;   // the rocket's nozzle
+        for (let i = 0; i < smokeStart; i++) {
+          anim[i * 3] = rocket[i * 3];
+          anim[i * 3 + 1] = rocket[i * 3 + 1] + lift;
+          anim[i * 3 + 2] = rocket[i * 3 + 2];
+        }
+        const bloom = 0.4 + 1.7 * Math.min(tt, 1);
+        for (let i = smokeStart; i < N; i++) {
+          const u = smokeU[i];
+          let x, y;
+          if (u < 0.35) {                   // billowing cloud at the pad
+            x = padX + smokeSX[i] * bloom;
+            y = padY + smokeSY[i] * bloom * 0.8;
+          } else {                          // column chasing the rocket
+            const uu = (u - 0.35) / 0.65;
+            y = padY + uu * Math.max(lift - 1.0, 0.1);
+            x = padX + smokeSX[i] * (0.22 + (1 - uu) * 0.6);
+          }
+          anim[i * 3] = x;
+          anim[i * 3 + 1] = y;
+          anim[i * 3 + 2] = smokeSY[i] * 0.8;
+        }
+        return anim;
+      }
+    }
+    // drive: cross the screen left-to-right, pause off-screen, repeat
+    const tt = (now - modeT0) / 1000;
+    const halfSpan = halfVisX * (isMobile ? 1.35 : 1.05) + 2.2;
+    const CROSS = 6, PAUSE = 1.6;
+    const ph = tt % (CROSS + PAUSE);
+    const x = ph < CROSS ? -halfSpan + 2 * halfSpan * (ph / CROSS) : -halfSpan;
+    if (!isNaN(lastDriveX) && Math.abs(x - lastDriveX) > 4) {
+      // wrapped around while off-screen: teleport the cloud with the car
+      // so it re-enters from the left instead of streaking backwards
+      const dx = x - lastDriveX;
+      for (let i = 0; i < N; i++) base[i * 3] += dx;
+    }
+    lastDriveX = x;
+    const car = shapes[7], y = carLaneY();
+    for (let i = 0; i < N; i++) {
+      anim[i * 3] = car[i * 3] + x;
+      anim[i * 3 + 1] = car[i * 3 + 1] + y;
+      anim[i * 3 + 2] = car[i * 3 + 2];
+    }
+    return anim;
+  }
 
   /* ---------- geometry, colors, material ---------- */
 
@@ -421,6 +533,12 @@ function init(renderer) {
     base.set(shapes[forcedShape]);
   }
 
+  // deep link straight into the "different" section: start the car loop
+  if (targetIdx === 7) {
+    mode = 'drive';
+    modeT0 = performance.now();
+  }
+
   function pickSection() {
     const mid = window.innerHeight / 2;
     for (const s of sections) {
@@ -436,7 +554,9 @@ function init(renderer) {
     if (idx !== targetIdx) {
       // gentle glide between the closing sections, punchier elsewhere
       scale = (idx >= 4 && idx !== 5) ? 0.94 : 0.78;
+      const prev = targetIdx;
       targetIdx = idx;
+      sectionChanged(prev, idx);
     }
     spinMomentum += (window.scrollY - lastScrollY) * 0.00035;
     lastScrollY = window.scrollY;
@@ -479,8 +599,8 @@ function init(renderer) {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    shapes[7].set(shapeFormula());   // refit the margin shapes
-    shapes[8].set(shapeVault());
+    halfVisX = 3.3137 * (window.innerWidth / window.innerHeight);
+    shapes[8].set(shapeVault());   // refit the margin vault
   });
 
   function render() {
@@ -489,9 +609,11 @@ function init(renderer) {
 
     const dt = Math.min(clock.getDelta(), 0.05);
     const t = clock.elapsedTime;
-    const target = shapes[targetIdx];
-    // slower, smoother morph into the team streams and the contact ring
-    const kRate = (targetIdx >= 4 && targetIdx !== 5) ? 2.1 : 3.4;
+    const target = targetIdx === 7 ? section7Target(performance.now()) : shapes[targetIdx];
+    // slower, smoother morph into the team streams and the contact ring;
+    // the rocket launch tracks its fast-rising target much more tightly
+    const kRate = (targetIdx === 7 && mode === 'launch') ? 4.5
+      : (targetIdx >= 4 && targetIdx !== 5) ? 2.1 : 3.4;
     const k = 1 - Math.exp(-dt * kRate);
 
     // electrons orbit the nucleus slowly, and each blob swirls around itself
@@ -511,9 +633,9 @@ function init(renderer) {
 
     for (let i = 0; i < N * 3; i++) base[i] += (target[i] - base[i]) * k;
 
-    // the margin shapes (formula car, vault) need crisp detail:
-    // smaller dots, calmer wobble
-    const fine = targetIdx === 7 || targetIdx === 8;
+    // the car and vault need crisp detail: smaller dots, calmer wobble
+    // (the rocket launch keeps the fat dots so the smoke stays soft)
+    const fine = (targetIdx === 7 && mode !== 'launch') || targetIdx === 8;
     const sizeTarget = fine ? (isMobile ? 0.06 : 0.045) : (isMobile ? 0.085 : 0.065);
     mat.size += (sizeTarget - mat.size) * (1 - Math.exp(-dt * 2.5));
     const amp = fine ? 0.009 : 0.024;
