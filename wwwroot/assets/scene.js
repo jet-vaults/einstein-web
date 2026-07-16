@@ -190,9 +190,10 @@ function init(renderer) {
     return out;
   }
 
-  // a ringing phone beside the contact form: body + ring waves in the
-  // left margin. The render loop shakes it in short bursts like an
-  // incoming call. Rebuilt on resize.
+  // a ringing telephone handset beside the contact form, in the right
+  // margin: a curved receiver (earpiece up-right, mouthpiece down-left)
+  // with ring waves fanning off the earpiece. The render loop shakes it
+  // in short bursts like an incoming call. Rebuilt on resize.
   let phoneMeta = null;
 
   function shapePhone() {
@@ -202,32 +203,32 @@ function init(renderer) {
     const formEdge = halfVis * (2 * formHalfPx / window.innerWidth);
     const avail = Math.max(halfVis - formEdge, 0.9);
     const SC = Math.min(Math.max(avail / 3.4, 0.4), 0.9);
-    const CX = isMobile ? -(halfVis + 2) : -(halfVis + formEdge) / 2;
-    const CY = 0.1;
+    const CX = isMobile ? halfVis + 2 : (halfVis + formEdge) / 2;
+    const CY = 0;
     const T = (x, y) => [x * SC + CX, y * SC + CY];
     const segs = [];
-    const M = (x0, y0, x1, y1) => segs.push([T(x0, y0), T(x1, y1)]);
-    // body
-    M(-0.55, 1.15, 0.55, 1.15); M(0.55, 1.15, 0.55, -1.15);
-    M(0.55, -1.15, -0.55, -1.15); M(-0.55, -1.15, -0.55, 1.15);
-    // earpiece + home indicator
-    M(-0.18, 0.88, 0.18, 0.88);
-    M(-0.15, -0.9, 0.15, -0.9);
-    // ring waves off both top corners
-    const wave = (cx, cy, a0, a1) => {
-      for (const r of [0.32, 0.55, 0.78]) {
-        const steps = 6;
-        for (let k = 0; k < steps; k++) {
-          const t0 = a0 + (a1 - a0) * k / steps, t1 = a0 + (a1 - a0) * (k + 1) / steps;
-          segs.push([
-            T(cx + r * Math.cos(t0), cy + r * Math.sin(t0)),
-            T(cx + r * Math.cos(t1), cy + r * Math.sin(t1))
-          ]);
-        }
+    const arc = (cx, cy, r, a0, a1, steps) => {
+      for (let k = 0; k < steps; k++) {
+        const t0 = a0 + (a1 - a0) * k / steps, t1 = a0 + (a1 - a0) * (k + 1) / steps;
+        segs.push([
+          T(cx + r * Math.cos(t0), cy + r * Math.sin(t0)),
+          T(cx + r * Math.cos(t1), cy + r * Math.sin(t1))
+        ]);
       }
     };
-    wave(0.72, 1.32, -Math.PI / 9, Math.PI * 0.42);
-    wave(-0.72, 1.32, Math.PI * 0.58, Math.PI * 1.11);
+    // curved handle: two arcs sweeping from the earpiece (up-right)
+    // through the bow (down-right) to the mouthpiece (down-left)
+    const A0 = Math.PI / 4, A1 = -Math.PI * 3 / 4;
+    arc(0, 0, 1.08, A0, A1, 20);
+    arc(0, 0, 0.72, A0, A1, 16);
+    // earpiece and mouthpiece bulbs
+    const bx = 0.9 * Math.cos(A0), by = 0.9 * Math.sin(A0);
+    arc(bx, by, 0.3, 0, Math.PI * 2, 10);
+    arc(-bx, -by, 0.3, 0, Math.PI * 2, 10);
+    // ring waves fanning up off the earpiece
+    for (const r of [0.55, 0.8, 1.05]) {
+      arc(bx, by, r, Math.PI / 6, Math.PI * 0.68, 6);
+    }
     sampleSegments(segs, out, 0, N, 0.02, 0.07);
     phoneMeta = { cx: CX, cy: CY };
     return out;
