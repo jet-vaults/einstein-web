@@ -206,30 +206,44 @@ function init(renderer) {
     const CX = isMobile ? halfVis + 2 : (halfVis + formEdge) / 2;
     const CY = 0;
     const T = (x, y) => [x * SC + CX, y * SC + CY];
+    // classic receiver lying flat: a shallow smile-shaped crescent, the
+    // rounded ends almost horizontal, bow through the bottom
+    const A0 = Math.PI * 35 / 36, A1 = Math.PI * 2 + Math.PI / 36;
+    const YS = 0.82;   // flatten the bow a little
+    const ex = 0.92 * Math.cos(A0), ey = 0.92 * Math.sin(A0) * YS;
+    // ring waves rising above the middle of the receiver (drawn as lines)
     const segs = [];
-    const arc = (cx, cy, r, a0, a1, steps) => {
+    for (const r of [0.55, 0.8, 1.05]) {
+      const steps = 6, a0 = Math.PI * 0.28, a1 = Math.PI * 0.72;
       for (let k = 0; k < steps; k++) {
         const t0 = a0 + (a1 - a0) * k / steps, t1 = a0 + (a1 - a0) * (k + 1) / steps;
         segs.push([
-          T(cx + r * Math.cos(t0), cy + r * Math.sin(t0)),
-          T(cx + r * Math.cos(t1), cy + r * Math.sin(t1))
+          T(r * Math.cos(t0), 0.4 + r * Math.sin(t0)),
+          T(r * Math.cos(t1), 0.4 + r * Math.sin(t1))
         ]);
       }
-    };
-    // curved handle: two arcs sweeping from the earpiece (up-right)
-    // through the bow (down-right) to the mouthpiece (down-left)
-    const A0 = Math.PI / 4, A1 = -Math.PI * 3 / 4;
-    arc(0, 0, 1.08, A0, A1, 20);
-    arc(0, 0, 0.72, A0, A1, 16);
-    // earpiece and mouthpiece bulbs
-    const bx = 0.9 * Math.cos(A0), by = 0.9 * Math.sin(A0);
-    arc(bx, by, 0.3, 0, Math.PI * 2, 10);
-    arc(-bx, -by, 0.3, 0, Math.PI * 2, 10);
-    // ring waves fanning up off the earpiece
-    for (const r of [0.55, 0.8, 1.05]) {
-      arc(bx, by, r, Math.PI / 6, Math.PI * 0.68, 6);
     }
-    sampleSegments(segs, out, 0, N, 0.02, 0.07);
+    const nWave = Math.floor(N * 0.18);
+    sampleSegments(segs, out, 0, nWave, 0.02, 0.07);
+    // solid receiver: a dense filled crescent with fat rounded ends
+    for (let i = nWave; i < N; i++) {
+      const pick = Math.random();
+      let x, y;
+      if (pick < 0.6) {           // curved handle band
+        const a = A0 + (A1 - A0) * Math.random();
+        const r = 0.78 + Math.random() * 0.28;
+        x = r * Math.cos(a); y = r * Math.sin(a) * YS;
+      } else {                    // earpiece / mouthpiece ends
+        const s = pick < 0.8 ? 1 : -1;
+        const rr = 0.34 * Math.sqrt(Math.random());
+        const aa = Math.random() * Math.PI * 2;
+        x = s * ex + rr * Math.cos(aa);
+        y = ey + rr * Math.sin(aa);
+      }
+      out[i * 3] = x * SC + CX + gauss(0.015);
+      out[i * 3 + 1] = y * SC + CY + gauss(0.015);
+      out[i * 3 + 2] = gauss(0.07);
+    }
     phoneMeta = { cx: CX, cy: CY };
     return out;
   }
