@@ -363,8 +363,47 @@ function init(renderer) {
     return out;
   }
 
+  // a city skyline along the bottom of the view for the clients strip —
+  // office towers with lit windows, a nod to the real-estate developers
+  // we build for. Rebuilt on resize to span the actual screen width.
+  function shapeSkyline() {
+    const out = new Float32Array(N * 3);
+    const halfVis = 3.3137 * (window.innerWidth / window.innerHeight);
+    const baseY = -3.0;
+    const blds = [];
+    let bx = -halfVis - 0.3;
+    while (bx < halfVis + 0.3) {
+      const w = 0.55 + Math.random() * 0.55;
+      const h = 0.7 + Math.random() * 1.1;
+      blds.push({ x: bx, w, h });
+      bx += w + 0.18;
+    }
+    const segs = [];
+    for (const b of blds) {
+      segs.push(
+        [[b.x, baseY], [b.x, baseY + b.h]],
+        [[b.x, baseY + b.h], [b.x + b.w, baseY + b.h]],
+        [[b.x + b.w, baseY + b.h], [b.x + b.w, baseY]]
+      );
+    }
+    segs.push([[-halfVis - 0.3, baseY], [halfVis + 0.3, baseY]]);   // ground line
+    const nOutline = Math.floor(N * 0.6);
+    sampleSegments(segs, out, 0, nOutline, 0.015, 0.06);
+    // lit windows: a loose grid of dots inside random buildings
+    for (let i = nOutline; i < N; i++) {
+      const b = blds[(Math.random() * blds.length) | 0];
+      const cols = Math.max(2, Math.round(b.w / 0.16));
+      const rows = Math.max(2, Math.round(b.h / 0.2));
+      const c = (Math.random() * cols) | 0, r = (Math.random() * rows) | 0;
+      out[i * 3] = b.x + (c + 0.5) * (b.w / cols) + gauss(0.008);
+      out[i * 3 + 1] = baseY + (r + 0.5) * (b.h / rows) + gauss(0.008);
+      out[i * 3 + 2] = gauss(0.05);
+    }
+    return out;
+  }
+
   const browserDir = () => document.documentElement.dir === 'rtl' ? -1 : 1;
-  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapePlane(), shapeStar(), shapeTeam(), shapeBrackets(), shapeGauge()];
+  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapePlane(), shapeStar(), shapeTeam(), shapeBrackets(), shapeGauge(), shapeSkyline()];
 
 
   // rebuild the browser shape when the language toggle flips direction
@@ -498,6 +537,7 @@ function init(renderer) {
     shapes[4].set(shapePlane());      // refit the plane to the new margin
     shapes[7].set(shapeBrackets());   // refit the brackets to the new margins
     shapes[8].set(shapeGauge());      // refit the gauge to the new margin
+    shapes[9].set(shapeSkyline());    // refit the skyline to the new width
   });
 
   function render() {
@@ -550,8 +590,8 @@ function init(renderer) {
 
     for (let i = 0; i < N * 3; i++) base[i] += (target[i] - base[i]) * k;
 
-    // the gauge and phone need crisp detail: smaller dots, calmer wobble
-    const fine = targetIdx === 8 || targetIdx === 4;
+    // the gauge, plane and skyline need crisp detail: smaller dots, calmer wobble
+    const fine = targetIdx === 8 || targetIdx === 4 || targetIdx === 9;
     const sizeTarget = fine ? (isMobile ? 0.06 : 0.045) : (isMobile ? 0.085 : 0.065);
     mat.size += (sizeTarget - mat.size) * (1 - Math.exp(-dt * 2.5));
     const amp = fine ? 0.009 : 0.024;
