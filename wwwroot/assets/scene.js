@@ -261,19 +261,24 @@ function init(renderer) {
     return out;
   }
 
-  // the particles clear out entirely: parked just beyond the left and
-  // right screen edges, so the section shows no particles at all and the
-  // cloud re-enters as the next section's shape. Rebuilt on resize.
-  function shapeOffscreen() {
+  // a large < and > flanking the dark tech band — code brackets drawn in
+  // the side margins with the soft ambient dots. Rebuilt on resize so they
+  // stay centered in the actual margins.
+  function shapeBrackets() {
     const out = new Float32Array(N * 3);
     const halfVis = 3.3137 * (window.innerWidth / window.innerHeight);
-    const inner = halfVis + 1.0;
-    for (let i = 0; i < N; i++) {
-      const side = i % 2 === 0 ? -1 : 1;
-      out[i * 3] = side * rand(inner, inner + 2.0);
-      out[i * 3 + 1] = rand(-3.3, 3.3);
-      out[i * 3 + 2] = gauss(0.3);
-    }
+    const cardHalfPx = Math.min(window.innerWidth, 1184) / 2 - 24;
+    const cardEdge = halfVis * (2 * cardHalfPx / window.innerWidth);
+    const avail = Math.max(halfVis - cardEdge, 0.9);
+    const m = isMobile ? halfVis + 2 : (halfVis + cardEdge) / 2;   // margin midpoints
+    const w = Math.min(avail * 0.55, 1.1), H = 1.7;
+    const segs = [
+      // < on the left
+      [[-m + w / 2, H], [-m - w / 2, 0]], [[-m - w / 2, 0], [-m + w / 2, -H]],
+      // > on the right
+      [[m - w / 2, H], [m + w / 2, 0]], [[m + w / 2, 0], [m - w / 2, -H]]
+    ];
+    sampleSegments(segs, out, 0, N, 0.05, 0.16);
     return out;
   }
 
@@ -340,7 +345,7 @@ function init(renderer) {
   }
 
   const browserDir = () => document.documentElement.dir === 'rtl' ? -1 : 1;
-  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeRing(), shapeStar(), shapeTeam(), shapeOffscreen(), shapeGauge()];
+  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeRing(), shapeStar(), shapeTeam(), shapeBrackets(), shapeGauge()];
 
 
   // rebuild the browser shape when the language toggle flips direction
@@ -471,8 +476,8 @@ function init(renderer) {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    shapes[7].set(shapeOffscreen());   // refit the parked cloud to the new edges
-    shapes[8].set(shapeGauge());       // refit the gauge to the new margin
+    shapes[7].set(shapeBrackets());   // refit the brackets to the new margins
+    shapes[8].set(shapeGauge());      // refit the gauge to the new margin
   });
 
   function render() {
