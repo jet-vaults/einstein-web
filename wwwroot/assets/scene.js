@@ -190,13 +190,12 @@ function init(renderer) {
     return out;
   }
 
-  // a ringing telephone handset beside the contact form, in the right
-  // margin: a curved receiver (earpiece up-right, mouthpiece down-left)
-  // with ring waves fanning off the earpiece. The render loop shakes it
-  // in short bursts like an incoming call. Rebuilt on resize.
-  let phoneMeta = null;
+  // a paper plane beside the contact form — the "send a message" icon,
+  // flying up toward the form with a short dashed trail behind it.
+  // The render loop makes it glide gently in place. Rebuilt on resize.
+  let planeMeta = null;
 
-  function shapePhone() {
+  function shapePlane() {
     const out = new Float32Array(N * 3);
     const halfVis = 3.3137 * (window.innerWidth / window.innerHeight);
     const formHalfPx = Math.min(window.innerWidth, 608) / 2;   // 38rem contact card
@@ -204,47 +203,31 @@ function init(renderer) {
     const avail = Math.max(halfVis - formEdge, 0.9);
     const SC = Math.min(Math.max(avail / 3.4, 0.4), 0.9);
     const CX = isMobile ? halfVis + 2 : (halfVis + formEdge) / 2;
-    const CY = 0;
+    const CY = 0.2;
     const T = (x, y) => [x * SC + CX, y * SC + CY];
-    // classic receiver lying flat: a shallow smile-shaped crescent, the
-    // rounded ends almost horizontal, bow through the bottom
-    const A0 = Math.PI * 35 / 36, A1 = Math.PI * 2 + Math.PI / 36;
-    const YS = 0.82;   // flatten the bow a little
-    const ex = 0.92 * Math.cos(A0), ey = 0.92 * Math.sin(A0) * YS;
-    // ring waves rising above the middle of the receiver (drawn as lines)
-    const segs = [];
-    for (const r of [0.55, 0.8, 1.05]) {
-      const steps = 6, a0 = Math.PI * 0.28, a1 = Math.PI * 0.72;
-      for (let k = 0; k < steps; k++) {
-        const t0 = a0 + (a1 - a0) * k / steps, t1 = a0 + (a1 - a0) * (k + 1) / steps;
-        segs.push([
-          T(r * Math.cos(t0), 0.4 + r * Math.sin(t0)),
-          T(r * Math.cos(t1), 0.4 + r * Math.sin(t1))
-        ]);
+    // nose up-left (toward the form), two folded wing triangles
+    const NP = [-1.15, 0.7], A = [1.1, 0.15], F = [0.2, -0.12], B = [0.6, -0.85];
+    // outline + fold line + dashed trail behind the tail
+    const segs = [
+      [T(NP[0], NP[1]), T(A[0], A[1])], [T(A[0], A[1]), T(F[0], F[1])],
+      [T(F[0], F[1]), T(B[0], B[1])], [T(B[0], B[1]), T(NP[0], NP[1])],
+      [T(NP[0], NP[1]), T(F[0], F[1])],
+      [T(1.0, -0.62), T(1.38, -0.85)], [T(0.72, -1.0), T(1.02, -1.18)]
+    ];
+    const nLines = Math.floor(N * 0.28);
+    sampleSegments(segs, out, 0, nLines, 0.02, 0.06);
+    // fill the two wing panels, the lower one sparser so the fold reads
+    const t3 = (x, y) => [x * SC + CX, y * SC + CY, 0];
+    const nTop = Math.floor(N * 0.48);
+    for (let i = nLines; i < N; i++) {
+      if (i < nLines + nTop) {
+        sampleTriangle(t3(NP[0], NP[1]), t3(A[0], A[1]), t3(F[0], F[1]), out, i, 0.02);
+      } else {
+        sampleTriangle(t3(NP[0], NP[1]), t3(F[0], F[1]), t3(B[0], B[1]), out, i, 0.03);
       }
+      out[i * 3 + 2] = gauss(0.06);
     }
-    const nWave = Math.floor(N * 0.18);
-    sampleSegments(segs, out, 0, nWave, 0.02, 0.07);
-    // solid receiver: a dense filled crescent with fat rounded ends
-    for (let i = nWave; i < N; i++) {
-      const pick = Math.random();
-      let x, y;
-      if (pick < 0.6) {           // curved handle band
-        const a = A0 + (A1 - A0) * Math.random();
-        const r = 0.78 + Math.random() * 0.28;
-        x = r * Math.cos(a); y = r * Math.sin(a) * YS;
-      } else {                    // earpiece / mouthpiece ends
-        const s = pick < 0.8 ? 1 : -1;
-        const rr = 0.34 * Math.sqrt(Math.random());
-        const aa = Math.random() * Math.PI * 2;
-        x = s * ex + rr * Math.cos(aa);
-        y = ey + rr * Math.sin(aa);
-      }
-      out[i * 3] = x * SC + CX + gauss(0.015);
-      out[i * 3 + 1] = y * SC + CY + gauss(0.015);
-      out[i * 3 + 2] = gauss(0.07);
-    }
-    phoneMeta = { cx: CX, cy: CY };
+    planeMeta = { cx: CX, cy: CY };
     return out;
   }
 
@@ -381,7 +364,7 @@ function init(renderer) {
   }
 
   const browserDir = () => document.documentElement.dir === 'rtl' ? -1 : 1;
-  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapePhone(), shapeStar(), shapeTeam(), shapeBrackets(), shapeGauge()];
+  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapePlane(), shapeStar(), shapeTeam(), shapeBrackets(), shapeGauge()];
 
 
   // rebuild the browser shape when the language toggle flips direction
@@ -512,7 +495,7 @@ function init(renderer) {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    shapes[4].set(shapePhone());      // refit the phone to the new margin
+    shapes[4].set(shapePlane());      // refit the plane to the new margin
     shapes[7].set(shapeBrackets());   // refit the brackets to the new margins
     shapes[8].set(shapeGauge());      // refit the gauge to the new margin
   });
@@ -579,14 +562,15 @@ function init(renderer) {
       draw[i * 3 + 2] = base[i * 3 + 2] + Math.sin(t * 1.3 + ph * 0.7) * amp;
     }
 
-    // the contact phone rings: short bursts of rigid shake about its center
-    if (targetIdx === 4 && phoneMeta && (t % 2.2) < 1.2) {
-      const ang = Math.sin(t * 26) * 0.05;
+    // the contact paper plane glides gently in place
+    if (targetIdx === 4 && planeMeta) {
+      const bob = Math.sin(t * 1.1) * 0.09;
+      const ang = Math.sin(t * 0.7) * 0.045;
       const ca = Math.cos(ang), sa = Math.sin(ang);
       for (let i = 0; i < N; i++) {
-        const dx = draw[i * 3] - phoneMeta.cx, dy = draw[i * 3 + 1] - phoneMeta.cy;
-        draw[i * 3] = phoneMeta.cx + dx * ca - dy * sa;
-        draw[i * 3 + 1] = phoneMeta.cy + dx * sa + dy * ca;
+        const dx = draw[i * 3] - planeMeta.cx, dy = draw[i * 3 + 1] - planeMeta.cy;
+        draw[i * 3] = planeMeta.cx + dx * ca - dy * sa;
+        draw[i * 3 + 1] = planeMeta.cy + dx * sa + dy * ca + bob;
       }
     }
 
