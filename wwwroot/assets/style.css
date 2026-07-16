@@ -353,6 +353,37 @@ h3 { font-size: 1.2rem; margin-block-end: 0.35rem; }
 .mini h3 { color: var(--blue); }
 .mini p { color: var(--muted); font-size: 0.95rem; }
 
+/* ===== Clients strip ===== */
+/* A quiet band of partner logos: grayscale at rest, full color on hover. */
+.clients { padding-block: clamp(2.5rem, 6vh, 4.5rem); }
+.clients .container { text-align: center; }
+
+.clients-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-block-end: 1.8rem;
+}
+
+.clients-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(2rem, 6vw, 4.5rem);
+  flex-wrap: wrap;
+}
+
+.clients-row img {
+  height: clamp(2.1rem, 4vw, 2.9rem);
+  width: auto;
+  filter: grayscale(1);
+  opacity: 0.55;
+  transition: filter 0.25s ease, opacity 0.25s ease;
+}
+
+.clients-row img:hover { filter: none; opacity: 1; }
+
 /* ===== Projects ===== */
 .projects .lead { margin-block-end: 2.4rem; }
 
