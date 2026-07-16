@@ -190,25 +190,46 @@ function init(renderer) {
     return out;
   }
 
-  function shapeRing() {
-    // soft circular ring around the centered contact card
+  // a ringing phone beside the contact form: body + ring waves in the
+  // left margin. The render loop shakes it in short bursts like an
+  // incoming call. Rebuilt on resize.
+  let phoneMeta = null;
+
+  function shapePhone() {
     const out = new Float32Array(N * 3);
-    const RX = 3.05, RY = 2.78, band = 0.2;
-    const nHalo = Math.floor(N * 0.08);
-    for (let i = 0; i < N - nHalo; i++) {
-      const a = Math.random() * Math.PI * 2;
-      const rr = 1 + gauss(band / 2);
-      out[i * 3] = Math.cos(a) * RX * rr;
-      out[i * 3 + 1] = Math.sin(a) * RY * rr;
-      out[i * 3 + 2] = gauss(0.12);
-    }
-    for (let i = N - nHalo; i < N; i++) {   // loose sparkle just outside
-      const a = Math.random() * Math.PI * 2;
-      const rr = 1.15 + Math.random() * 0.25;
-      out[i * 3] = Math.cos(a) * RX * rr;
-      out[i * 3 + 1] = Math.sin(a) * RY * rr;
-      out[i * 3 + 2] = gauss(0.25);
-    }
+    const halfVis = 3.3137 * (window.innerWidth / window.innerHeight);
+    const formHalfPx = Math.min(window.innerWidth, 608) / 2;   // 38rem contact card
+    const formEdge = halfVis * (2 * formHalfPx / window.innerWidth);
+    const avail = Math.max(halfVis - formEdge, 0.9);
+    const SC = Math.min(Math.max(avail / 3.4, 0.4), 0.9);
+    const CX = isMobile ? -(halfVis + 2) : -(halfVis + formEdge) / 2;
+    const CY = 0.1;
+    const T = (x, y) => [x * SC + CX, y * SC + CY];
+    const segs = [];
+    const M = (x0, y0, x1, y1) => segs.push([T(x0, y0), T(x1, y1)]);
+    // body
+    M(-0.55, 1.15, 0.55, 1.15); M(0.55, 1.15, 0.55, -1.15);
+    M(0.55, -1.15, -0.55, -1.15); M(-0.55, -1.15, -0.55, 1.15);
+    // earpiece + home indicator
+    M(-0.18, 0.88, 0.18, 0.88);
+    M(-0.15, -0.9, 0.15, -0.9);
+    // ring waves off both top corners
+    const wave = (cx, cy, a0, a1) => {
+      for (const r of [0.32, 0.55, 0.78]) {
+        const steps = 6;
+        for (let k = 0; k < steps; k++) {
+          const t0 = a0 + (a1 - a0) * k / steps, t1 = a0 + (a1 - a0) * (k + 1) / steps;
+          segs.push([
+            T(cx + r * Math.cos(t0), cy + r * Math.sin(t0)),
+            T(cx + r * Math.cos(t1), cy + r * Math.sin(t1))
+          ]);
+        }
+      }
+    };
+    wave(0.72, 1.32, -Math.PI / 9, Math.PI * 0.42);
+    wave(-0.72, 1.32, Math.PI * 0.58, Math.PI * 1.11);
+    sampleSegments(segs, out, 0, N, 0.02, 0.07);
+    phoneMeta = { cx: CX, cy: CY };
     return out;
   }
 
@@ -345,7 +366,7 @@ function init(renderer) {
   }
 
   const browserDir = () => document.documentElement.dir === 'rtl' ? -1 : 1;
-  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeRing(), shapeStar(), shapeTeam(), shapeBrackets(), shapeGauge()];
+  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapePhone(), shapeStar(), shapeTeam(), shapeBrackets(), shapeGauge()];
 
 
   // rebuild the browser shape when the language toggle flips direction
@@ -476,6 +497,7 @@ function init(renderer) {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    shapes[4].set(shapePhone());      // refit the phone to the new margin
     shapes[7].set(shapeBrackets());   // refit the brackets to the new margins
     shapes[8].set(shapeGauge());      // refit the gauge to the new margin
   });
@@ -530,8 +552,8 @@ function init(renderer) {
 
     for (let i = 0; i < N * 3; i++) base[i] += (target[i] - base[i]) * k;
 
-    // the gauge needs crisp detail: smaller dots, calmer wobble
-    const fine = targetIdx === 8;
+    // the gauge and phone need crisp detail: smaller dots, calmer wobble
+    const fine = targetIdx === 8 || targetIdx === 4;
     const sizeTarget = fine ? (isMobile ? 0.06 : 0.045) : (isMobile ? 0.085 : 0.065);
     mat.size += (sizeTarget - mat.size) * (1 - Math.exp(-dt * 2.5));
     const amp = fine ? 0.009 : 0.024;
@@ -541,6 +563,18 @@ function init(renderer) {
       draw[i * 3 + 1] = base[i * 3 + 1] + Math.cos(t * 0.9 + ph * 1.3) * amp;
       draw[i * 3 + 2] = base[i * 3 + 2] + Math.sin(t * 1.3 + ph * 0.7) * amp;
     }
+
+    // the contact phone rings: short bursts of rigid shake about its center
+    if (targetIdx === 4 && phoneMeta && (t % 2.2) < 1.2) {
+      const ang = Math.sin(t * 26) * 0.05;
+      const ca = Math.cos(ang), sa = Math.sin(ang);
+      for (let i = 0; i < N; i++) {
+        const dx = draw[i * 3] - phoneMeta.cx, dy = draw[i * 3 + 1] - phoneMeta.cy;
+        draw[i * 3] = phoneMeta.cx + dx * ca - dy * sa;
+        draw[i * 3 + 1] = phoneMeta.cy + dx * sa + dy * ca;
+      }
+    }
+
     geo.attributes.position.needsUpdate = true;
 
     spinMomentum *= Math.exp(-dt * 2.2);
