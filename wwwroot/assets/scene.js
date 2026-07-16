@@ -290,8 +290,10 @@ function init(renderer) {
     const textEdge = halfVis * (2 * textHalfPx / window.innerWidth);
     const avail = Math.max(halfVis - textEdge, 0.9);
     const SC = Math.min(Math.max(avail / 3.1, 0.4), 0.9);
-    const CX = isMobile ? halfVis * 1.8 : (halfVis + textEdge) / 2;
-    const CY = 0.1;
+    // hover above the start of the first paragraph (top-right of the text
+    // column in RTL), beside the centered title
+    const CX = isMobile ? halfVis * 1.8 : textEdge + 0.1;
+    const CY = 1.55;
     const T = (x, y) => [x * SC + CX, y * SC + CY];
     const segs = [];
     const A0 = Math.PI * 7 / 6, A1 = -Math.PI / 6;   // 210° .. -30°
@@ -480,8 +482,9 @@ function init(renderer) {
     const dt = Math.min(clock.getDelta(), 0.05);
     const t = clock.elapsedTime;
     const target = shapes[targetIdx];
-    // slower, smoother morph into the team streams and the contact ring
-    const kRate = (targetIdx === 4 || targetIdx === 6) ? 2.1 : 3.4;
+    // slower, smoother morph into the team streams and the contact ring;
+    // the gauge tracks its fast needle tightly
+    const kRate = targetIdx === 8 ? 4.5 : (targetIdx === 4 || targetIdx === 6) ? 2.1 : 3.4;
     const k = 1 - Math.exp(-dt * kRate);
 
     // electrons orbit the nucleus slowly, and each blob swirls around itself
@@ -499,14 +502,16 @@ function init(renderer) {
       }
     }
 
-    // the speed-gauge needle sweeps from rest up to the top of the dial
-    // when its section arrives, then holds there with a live quiver
+    // the speed-gauge needle slams from rest to the top of the dial when
+    // its section arrives — fast, overshooting and snapping back like a
+    // revving speedometer — then holds there with a live quiver
     if (targetIdx === 8 && gaugeMeta) {
       const g = gaugeMeta;
-      const prog = Math.min(Math.max((performance.now() - gaugeT0) / 2400, 0), 1);
-      const ease = 1 - Math.pow(1 - prog, 3);
+      const prog = Math.min(Math.max((performance.now() - gaugeT0) / 1100, 0), 1);
+      const b = prog - 1;
+      const ease = 1 + 2.70158 * b * b * b + 1.70158 * b * b;   // ease-out-back
       const A0 = Math.PI * 7 / 6, A1 = -Math.PI / 8;
-      const ang = A0 + (A1 - A0) * ease + Math.sin(t * 2.6) * 0.015 * ease;
+      const ang = A0 + (A1 - A0) * ease + Math.sin(t * 7) * 0.02 * prog;
       const ca = Math.cos(ang), sa = Math.sin(ang);
       for (let i = g.start; i < N; i++) {
         const j = i - g.start;
