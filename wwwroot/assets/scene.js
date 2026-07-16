@@ -261,17 +261,17 @@ function init(renderer) {
     return out;
   }
 
-  // a loose field of ambient dots hugging the left and right screen edges,
-  // keeping the center clear for the open full-width text sections.
-  // Rebuilt on resize so the bands track the actual screen margins.
-  function shapeEdges() {
+  // the particles clear out entirely: parked just beyond the left and
+  // right screen edges, so the section shows no particles at all and the
+  // cloud re-enters as the next section's shape. Rebuilt on resize.
+  function shapeOffscreen() {
     const out = new Float32Array(N * 3);
     const halfVis = 3.3137 * (window.innerWidth / window.innerHeight);
-    const inner = isMobile ? halfVis * 1.3 : Math.max(halfVis * 0.72, halfVis - 1.6);
+    const inner = halfVis + 1.0;
     for (let i = 0; i < N; i++) {
       const side = i % 2 === 0 ? -1 : 1;
-      out[i * 3] = side * rand(inner, halfVis + 0.6);
-      out[i * 3 + 1] = rand(-3.1, 3.1);
+      out[i * 3] = side * rand(inner, inner + 2.0);
+      out[i * 3 + 1] = rand(-3.3, 3.3);
       out[i * 3 + 2] = gauss(0.3);
     }
     return out;
@@ -340,7 +340,7 @@ function init(renderer) {
   }
 
   const browserDir = () => document.documentElement.dir === 'rtl' ? -1 : 1;
-  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeRing(), shapeStar(), shapeTeam(), shapeEdges(), shapeGauge()];
+  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeRing(), shapeStar(), shapeTeam(), shapeOffscreen(), shapeGauge()];
 
 
   // rebuild the browser shape when the language toggle flips direction
@@ -471,8 +471,8 @@ function init(renderer) {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    shapes[7].set(shapeEdges());   // refit the edge bands to the new margins
-    shapes[8].set(shapeGauge());   // refit the gauge to the new margin
+    shapes[7].set(shapeOffscreen());   // refit the parked cloud to the new edges
+    shapes[8].set(shapeGauge());       // refit the gauge to the new margin
   });
 
   function render() {
