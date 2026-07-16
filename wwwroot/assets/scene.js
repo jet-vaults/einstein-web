@@ -371,10 +371,10 @@ function init(renderer) {
     // stand the towers right under the logo cards, above the zone where
     // the next section's title scrolls in
     const baseY = -2.2;
-    // three equal towers in a tight centered row, tops on the same line
+    // a tight centered row, the middle tower standing taller
     const blds = [
       { x: -1.85, w: 1.0, h: 1.15 },
-      { x: -0.5, w: 1.0, h: 1.15 },
+      { x: -0.5, w: 1.0, h: 1.6 },
       { x: 0.85, w: 1.0, h: 1.15 }
     ];
     const segs = [];

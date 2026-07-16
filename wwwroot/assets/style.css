@@ -360,8 +360,8 @@ h3 { font-size: 1.2rem; margin-block-end: 0.35rem; }
    high; tall padding below is where the particle towers stand, keeping
    the next section's title clear of them. */
 .clients {
-  margin-block-start: -3rem;
-  padding-block: 0 clamp(8rem, 18vh, 12rem);
+  margin-block-start: -7rem;
+  padding-block: 0 clamp(11rem, 26vh, 17rem);
 }
 .clients .container { text-align: center; }
 
