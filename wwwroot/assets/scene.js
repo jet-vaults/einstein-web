@@ -371,21 +371,22 @@ function init(renderer) {
     // stand the towers right under the logo cards, above the zone where
     // the next section's title scrolls in
     const baseY = -2.2;
+    // three equal towers in a tight centered row, tops on the same line
     const blds = [
-      { x: -2.9, w: 1.0, h: 0.9 },
-      { x: -0.5, w: 1.0, h: 1.35 },
-      { x: 1.9, w: 1.0, h: 1.1 }
+      { x: -1.85, w: 1.0, h: 1.15 },
+      { x: -0.5, w: 1.0, h: 1.15 },
+      { x: 0.85, w: 1.0, h: 1.15 }
     ];
     const segs = [];
     for (const b of blds) {
       segs.push(
         [[b.x, baseY], [b.x, baseY + b.h]],
         [[b.x, baseY + b.h], [b.x + b.w, baseY + b.h]],
-        [[b.x + b.w, baseY + b.h], [b.x + b.w, baseY]],
-        // short base line under each tower instead of a full ground line
-        [[b.x - 0.18, baseY], [b.x + b.w + 0.18, baseY]]
+        [[b.x + b.w, baseY + b.h], [b.x + b.w, baseY]]
       );
     }
+    // one shared base line under the row
+    segs.push([[-2.1, baseY], [2.1, baseY]]);
     const nOutline = Math.floor(N * 0.55);
     sampleSegments(segs, out, 0, nOutline, 0.015, 0.06);
     // lit windows: a loose grid of dots inside the towers
