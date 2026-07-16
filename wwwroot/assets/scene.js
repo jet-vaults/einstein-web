@@ -277,8 +277,68 @@ function init(renderer) {
     return out;
   }
 
+  // a speed gauge in the right margin for the "different" section — the
+  // needle is animated in the render loop, sweeping up to demonstrate a
+  // fast site. The dial (arc, ticks, hub) is static; the last chunk of
+  // particles is reserved for the needle. Rebuilt on resize.
+  let gaugeMeta = null;
+
+  function shapeGauge() {
+    const out = new Float32Array(N * 3);
+    const halfVis = 3.3137 * (window.innerWidth / window.innerHeight);
+    const textHalfPx = Math.min(window.innerWidth, 1040) / 2;   // 65rem column
+    const textEdge = halfVis * (2 * textHalfPx / window.innerWidth);
+    const avail = Math.max(halfVis - textEdge, 0.9);
+    const SC = Math.min(Math.max(avail / 3.1, 0.4), 0.9);
+    const CX = isMobile ? halfVis * 1.8 : (halfVis + textEdge) / 2;
+    const CY = 0.1;
+    const T = (x, y) => [x * SC + CX, y * SC + CY];
+    const segs = [];
+    const A0 = Math.PI * 7 / 6, A1 = -Math.PI / 6;   // 210° .. -30°
+    // dial arc
+    const STEPS = 28;
+    for (let k = 0; k < STEPS; k++) {
+      const a0 = A0 + (A1 - A0) * k / STEPS, a1 = A0 + (A1 - A0) * (k + 1) / STEPS;
+      segs.push([
+        T(1.15 * Math.cos(a0), 1.15 * Math.sin(a0)),
+        T(1.15 * Math.cos(a1), 1.15 * Math.sin(a1))
+      ]);
+    }
+    // ticks every 30 degrees
+    for (let k = 0; k <= 8; k++) {
+      const a = A0 + (A1 - A0) * k / 8;
+      segs.push([
+        T(1.0 * Math.cos(a), 1.0 * Math.sin(a)),
+        T(1.15 * Math.cos(a), 1.15 * Math.sin(a))
+      ]);
+    }
+    // hub
+    for (let k = 0; k < 10; k++) {
+      const a0 = Math.PI * 2 * k / 10, a1 = Math.PI * 2 * (k + 1) / 10;
+      segs.push([
+        T(0.12 * Math.cos(a0), 0.12 * Math.sin(a0)),
+        T(0.12 * Math.cos(a1), 0.12 * Math.sin(a1))
+      ]);
+    }
+    const nNeedle = Math.floor(N * 0.15);
+    const staticCount = N - nNeedle;
+    sampleSegments(segs, out, 0, staticCount, 0.014, 0.05);
+    // needle particles start folded into the hub; the render loop aims them
+    const u = new Float32Array(nNeedle), w = new Float32Array(nNeedle), z = new Float32Array(nNeedle);
+    for (let j = 0; j < nNeedle; j++) {
+      u[j] = Math.random();
+      w[j] = gauss(0.03) * (1 - u[j] * 0.7);   // tapers toward the tip
+      z[j] = gauss(0.05);
+      out[(staticCount + j) * 3] = CX;
+      out[(staticCount + j) * 3 + 1] = CY;
+      out[(staticCount + j) * 3 + 2] = z[j];
+    }
+    gaugeMeta = { start: staticCount, cx: CX, cy: CY, SC, u, w, z };
+    return out;
+  }
+
   const browserDir = () => document.documentElement.dir === 'rtl' ? -1 : 1;
-  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeRing(), shapeStar(), shapeTeam(), shapeEdges()];
+  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapeRing(), shapeStar(), shapeTeam(), shapeEdges(), shapeGauge()];
 
 
   // rebuild the browser shape when the language toggle flips direction
@@ -336,6 +396,7 @@ function init(renderer) {
   const sections = Array.from(document.querySelectorAll('[data-shape]'));
   let targetIdx = 0, currentIdx = 0;
   let scale = 1, lastScrollY = window.scrollY, spinMomentum = 0;
+  let gaugeT0 = -1e9;   // when the gauge section was last entered
 
   // respect deep links / restored scroll position: start on the visible shape
   targetIdx = pickSection();
@@ -348,6 +409,8 @@ function init(renderer) {
     targetIdx = forcedShape;
     base.set(shapes[forcedShape]);
   }
+
+  if (targetIdx === 8) gaugeT0 = performance.now();   // deep link into the gauge
 
   function pickSection() {
     const mid = window.innerHeight / 2;
@@ -363,8 +426,9 @@ function init(renderer) {
     const idx = pickSection();
     if (idx !== targetIdx) {
       // gentle glide between the closing sections, punchier elsewhere
-      scale = (idx === 4 || idx === 6) ? 0.94 : 0.78;
+      scale = (idx >= 4 && idx !== 5) ? 0.94 : 0.78;
       targetIdx = idx;
+      if (idx === 8) gaugeT0 = performance.now();   // restart the sweep
     }
     spinMomentum += (window.scrollY - lastScrollY) * 0.00035;
     lastScrollY = window.scrollY;
@@ -406,6 +470,7 @@ function init(renderer) {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
     shapes[7].set(shapeEdges());   // refit the edge bands to the new margins
+    shapes[8].set(shapeGauge());   // refit the gauge to the new margin
   });
 
   function render() {
@@ -434,10 +499,29 @@ function init(renderer) {
       }
     }
 
+    // the speed-gauge needle sweeps from rest up to the top of the dial
+    // when its section arrives, then holds there with a live quiver
+    if (targetIdx === 8 && gaugeMeta) {
+      const g = gaugeMeta;
+      const prog = Math.min(Math.max((performance.now() - gaugeT0) / 2400, 0), 1);
+      const ease = 1 - Math.pow(1 - prog, 3);
+      const A0 = Math.PI * 7 / 6, A1 = -Math.PI / 8;
+      const ang = A0 + (A1 - A0) * ease + Math.sin(t * 2.6) * 0.015 * ease;
+      const ca = Math.cos(ang), sa = Math.sin(ang);
+      for (let i = g.start; i < N; i++) {
+        const j = i - g.start;
+        const r = g.u[j] * 0.92 * g.SC;
+        const wo = g.w[j] * g.SC;
+        target[i * 3] = g.cx + ca * r - sa * wo;
+        target[i * 3 + 1] = g.cy + sa * r + ca * wo;
+        target[i * 3 + 2] = g.z[j];
+      }
+    }
+
     for (let i = 0; i < N * 3; i++) base[i] += (target[i] - base[i]) * k;
 
-    // the handshake needs crisp detail: smaller dots, calmer wobble
-    const fine = false;
+    // the gauge needs crisp detail: smaller dots, calmer wobble
+    const fine = targetIdx === 8;
     const sizeTarget = fine ? (isMobile ? 0.06 : 0.045) : (isMobile ? 0.085 : 0.065);
     mat.size += (sizeTarget - mat.size) * (1 - Math.exp(-dt * 2.5));
     const amp = fine ? 0.009 : 0.024;
@@ -450,8 +534,8 @@ function init(renderer) {
     geo.attributes.position.needsUpdate = true;
 
     spinMomentum *= Math.exp(-dt * 2.2);
-    // the contact handshake, team people and edge bands stay nearly flat
-    const rotAmp = (targetIdx === 4 || targetIdx === 6 || targetIdx === 7) ? 0.2 : 1;
+    // the contact handshake, team people, edge bands and gauge stay nearly flat
+    const rotAmp = (targetIdx >= 4 && targetIdx !== 5) ? 0.2 : 1;
     group.rotation.y += ((Math.sin(t * 0.1) * 0.16 + mx * 0.3 + spinMomentum) * rotAmp - group.rotation.y) * (1 - Math.exp(-dt * 2.5));
     group.rotation.y += spinMomentum * rotAmp * dt * 18;
     group.rotation.x += (my * 0.14 * rotAmp - group.rotation.x) * (1 - Math.exp(-dt * 2.5));
@@ -461,9 +545,9 @@ function init(renderer) {
     group.scale.set(s, s, s);
 
     const rtl = document.documentElement.dir === 'rtl';
-    // services & reviews swap sides; team, contact & edge bands stay centered
+    // services & reviews swap sides; team, contact, edge bands & gauge stay centered
     const flip = (targetIdx === 1 || targetIdx === 5) ? -1 : 1;
-    const centered = targetIdx === 4 || targetIdx === 6 || targetIdx === 7;
+    const centered = targetIdx >= 4 && targetIdx !== 5;
     const tx = (isMobile || centered) ? 0 : (rtl ? -2.6 : 2.6) * flip;
     group.position.x += (tx - group.position.x) * (1 - Math.exp(-dt * 2.0));
 
