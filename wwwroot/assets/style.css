@@ -356,7 +356,7 @@ h3 { font-size: 1.2rem; margin-block-end: 0.35rem; }
 /* ===== Clients strip ===== */
 /* Partner logos in three cards spanning the container, matching the
    card language of the rest of the site. Grayscale at rest, color on hover. */
-.clients { padding-block: clamp(3rem, 8vh, 5rem); }
+.clients { padding-block: clamp(5rem, 14vh, 9rem); }
 .clients .container { text-align: center; }
 
 .clients-title {

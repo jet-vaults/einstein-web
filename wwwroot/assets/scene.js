@@ -370,14 +370,12 @@ function init(renderer) {
     const out = new Float32Array(N * 3);
     const halfVis = 3.3137 * (window.innerWidth / window.innerHeight);
     const baseY = -3.0;
-    const blds = [];
-    let bx = -halfVis - 0.3;
-    while (bx < halfVis + 0.3) {
-      const w = 0.55 + Math.random() * 0.55;
-      const h = 0.7 + Math.random() * 1.1;
-      blds.push({ x: bx, w, h });
-      bx += w + 0.18;
-    }
+    // three towers, roughly under the three client cards
+    const blds = [
+      { x: -2.95, w: 1.1, h: 1.25 },
+      { x: -0.55, w: 1.1, h: 1.75 },
+      { x: 1.85, w: 1.1, h: 1.45 }
+    ];
     const segs = [];
     for (const b of blds) {
       segs.push(
@@ -387,13 +385,13 @@ function init(renderer) {
       );
     }
     segs.push([[-halfVis - 0.3, baseY], [halfVis + 0.3, baseY]]);   // ground line
-    const nOutline = Math.floor(N * 0.6);
+    const nOutline = Math.floor(N * 0.55);
     sampleSegments(segs, out, 0, nOutline, 0.015, 0.06);
-    // lit windows: a loose grid of dots inside random buildings
+    // lit windows: a loose grid of dots inside the towers
     for (let i = nOutline; i < N; i++) {
       const b = blds[(Math.random() * blds.length) | 0];
-      const cols = Math.max(2, Math.round(b.w / 0.16));
-      const rows = Math.max(2, Math.round(b.h / 0.2));
+      const cols = Math.max(2, Math.round(b.w / 0.24));
+      const rows = Math.max(2, Math.round(b.h / 0.28));
       const c = (Math.random() * cols) | 0, r = (Math.random() * rows) | 0;
       out[i * 3] = b.x + (c + 0.5) * (b.w / cols) + gauss(0.008);
       out[i * 3 + 1] = baseY + (r + 0.5) * (b.h / rows) + gauss(0.008);
