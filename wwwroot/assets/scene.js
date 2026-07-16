@@ -368,30 +368,31 @@ function init(renderer) {
   // we build for. Rebuilt on resize to span the actual screen width.
   function shapeSkyline() {
     const out = new Float32Array(N * 3);
-    const halfVis = 3.3137 * (window.innerWidth / window.innerHeight);
-    const baseY = -3.0;
-    // three towers, roughly under the three client cards
+    // stand the towers right under the logo cards, above the zone where
+    // the next section's title scrolls in
+    const baseY = -2.2;
     const blds = [
-      { x: -2.95, w: 1.1, h: 1.25 },
-      { x: -0.55, w: 1.1, h: 1.75 },
-      { x: 1.85, w: 1.1, h: 1.45 }
+      { x: -2.9, w: 1.0, h: 0.9 },
+      { x: -0.5, w: 1.0, h: 1.35 },
+      { x: 1.9, w: 1.0, h: 1.1 }
     ];
     const segs = [];
     for (const b of blds) {
       segs.push(
         [[b.x, baseY], [b.x, baseY + b.h]],
         [[b.x, baseY + b.h], [b.x + b.w, baseY + b.h]],
-        [[b.x + b.w, baseY + b.h], [b.x + b.w, baseY]]
+        [[b.x + b.w, baseY + b.h], [b.x + b.w, baseY]],
+        // short base line under each tower instead of a full ground line
+        [[b.x - 0.18, baseY], [b.x + b.w + 0.18, baseY]]
       );
     }
-    segs.push([[-halfVis - 0.3, baseY], [halfVis + 0.3, baseY]]);   // ground line
     const nOutline = Math.floor(N * 0.55);
     sampleSegments(segs, out, 0, nOutline, 0.015, 0.06);
     // lit windows: a loose grid of dots inside the towers
     for (let i = nOutline; i < N; i++) {
       const b = blds[(Math.random() * blds.length) | 0];
-      const cols = Math.max(2, Math.round(b.w / 0.24));
-      const rows = Math.max(2, Math.round(b.h / 0.28));
+      const cols = Math.max(2, Math.round(b.w / 0.22));
+      const rows = Math.max(2, Math.round(b.h / 0.24));
       const c = (Math.random() * cols) | 0, r = (Math.random() * rows) | 0;
       out[i * 3] = b.x + (c + 0.5) * (b.w / cols) + gauss(0.008);
       out[i * 3 + 1] = baseY + (r + 0.5) * (b.h / rows) + gauss(0.008);
