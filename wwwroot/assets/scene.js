@@ -363,14 +363,15 @@ function init(renderer) {
     return out;
   }
 
-  // a city skyline along the bottom of the view for the clients strip —
-  // office towers with lit windows, a nod to the real-estate developers
-  // we build for. Rebuilt on resize to span the actual screen width.
+  // a city skyline for the clients strip — office towers with lit windows,
+  // a nod to the real-estate developers we build for. Built in local
+  // coordinates (standing on y = 0); the render loop anchors them to the
+  // strip's own bottom padding so they scroll with the page and never
+  // sit on top of the next section. Rebuilt on resize.
+  let skyMeta = null;
+
   function shapeSkyline() {
     const out = new Float32Array(N * 3);
-    // stand the towers right under the logo cards, above the zone where
-    // the next section's title scrolls in
-    const baseY = -2.2;
     // a tight centered row, the middle tower standing taller
     const blds = [
       { x: -1.85, w: 1.0, h: 1.15 },
@@ -380,13 +381,13 @@ function init(renderer) {
     const segs = [];
     for (const b of blds) {
       segs.push(
-        [[b.x, baseY], [b.x, baseY + b.h]],
-        [[b.x, baseY + b.h], [b.x + b.w, baseY + b.h]],
-        [[b.x + b.w, baseY + b.h], [b.x + b.w, baseY]]
+        [[b.x, 0], [b.x, b.h]],
+        [[b.x, b.h], [b.x + b.w, b.h]],
+        [[b.x + b.w, b.h], [b.x + b.w, 0]]
       );
     }
     // one shared base line under the row
-    segs.push([[-2.1, baseY], [2.1, baseY]]);
+    segs.push([[-2.1, 0], [2.1, 0]]);
     const nOutline = Math.floor(N * 0.55);
     sampleSegments(segs, out, 0, nOutline, 0.015, 0.06);
     // lit windows: a loose grid of dots inside the towers
@@ -396,9 +397,12 @@ function init(renderer) {
       const rows = Math.max(2, Math.round(b.h / 0.24));
       const c = (Math.random() * cols) | 0, r = (Math.random() * rows) | 0;
       out[i * 3] = b.x + (c + 0.5) * (b.w / cols) + gauss(0.008);
-      out[i * 3 + 1] = baseY + (r + 0.5) * (b.h / rows) + gauss(0.008);
+      out[i * 3 + 1] = (r + 0.5) * (b.h / rows) + gauss(0.008);
       out[i * 3 + 2] = gauss(0.05);
     }
+    const ly = new Float32Array(N);
+    for (let i = 0; i < N; i++) ly[i] = out[i * 3 + 1];
+    skyMeta = { ly };
     return out;
   }
 
@@ -564,6 +568,19 @@ function init(renderer) {
         target[i * 3] = e[0] + ri[j] * Math.cos(spin);
         target[i * 3 + 1] = e[1] + ri[j] * Math.sin(spin);
         target[i * 3 + 2] = e[2] + zi[j];
+      }
+    }
+
+    // the client towers stand in the strip's own bottom padding and scroll
+    // with the page, so they can never overtake the next section
+    if (targetIdx === 9 && skyMeta) {
+      const sec = document.getElementById('clients');
+      if (sec) {
+        const rb = sec.getBoundingClientRect().bottom;
+        const s = isMobile ? 0.8 : 1;
+        const yOff = (3.3137 - ((rb - 40) / window.innerHeight) * 6.6274) / s;
+        const sky = shapes[9];
+        for (let i = 0; i < N; i++) sky[i * 3 + 1] = skyMeta.ly[i] + yOff;
       }
     }
 
