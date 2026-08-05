@@ -96,7 +96,6 @@
       'contact.or': 'או כתבו לנו ישירות:',
       'contact.subject': 'פנייה חדשה מהאתר',
       'contact.sending': 'שולחים...',
-      'contact.success': 'ההודעה נשלחה! נחזור אליכם תוך יום עסקים.',
       'contact.error': 'ההודעה לא נשלחה. נסו שוב, או כתבו לנו ישירות במייל.',
       'contact.consent': 'קראתי ואני מאשר/ת את <a href="/privacy.html" target="_blank">מדיניות הפרטיות</a>',
       'bm.live': 'אתר חי',
@@ -210,7 +209,6 @@
       'contact.or': 'Or email us directly:',
       'contact.subject': 'New inquiry from the website',
       'contact.sending': 'Sending...',
-      'contact.success': 'Message sent! We’ll get back to you within one business day.',
       'contact.error': 'The message wasn’t sent. Please try again, or email us directly.',
       'contact.consent': 'I have read and agree to the <a href="/privacy.html" target="_blank">privacy policy</a>',
       'bm.live': 'Live site',
@@ -507,8 +505,7 @@
         headers: { Accept: 'application/json' }
       }).then(function (res) {
         if (!res.ok) throw new Error('formspree ' + res.status);
-        setStatus('contact.success');
-        contactForm.reset();
+        window.location.assign('/thanks.html');
       }).catch(function () {
         setStatus('contact.error');
       }).finally(function () {
