@@ -378,14 +378,10 @@ function init(renderer) {
       [[-1.25, 0.92], V],                    // short down-stroke
       [V, [1.45, 1.72]]                      // long up-stroke
     ];
-    const nStroke = Math.floor(N * 0.9);
+    const nStroke = Math.floor(N * 0.92);
     sampleSegments(segs, out, 0, nStroke, 0.05, 0.09);
-    // a sparse halo of drifting sparkles around the mark keeps it alive
-    for (let i = nStroke; i < N; i++) {
-      out[i * 3] = rand(-1.9, 2.1);
-      out[i * 3 + 1] = rand(0.1, 2.1);
-      out[i * 3 + 2] = gauss(0.2);
-    }
+    // a loose glow that hugs the strokes keeps it alive without boxing it in
+    sampleSegments(segs, out, nStroke, N - nStroke, 0.22, 0.18);
     const ly = new Float32Array(N);
     for (let i = 0; i < N; i++) ly[i] = out[i * 3 + 1];
     checkMeta = { ly };
