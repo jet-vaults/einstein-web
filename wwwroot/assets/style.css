@@ -704,6 +704,8 @@ h3 { font-size: 1.2rem; margin-block-end: 0.35rem; }
 }
 
 /* ===== Contact form ===== */
+.contact .content-card { border-radius: 50px; }
+
 .contact-form {
   width: 100%;
   max-width: 26rem;
