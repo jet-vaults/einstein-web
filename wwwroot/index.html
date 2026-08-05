@@ -34,7 +34,6 @@
         <a href="#reviews" data-i18n="nav.reviews">המלצות</a>
         <a href="#process" data-i18n="nav.process">איך זה עובד</a>
         <a href="#tech" data-i18n="nav.tech">טכנולוגיות</a>
-        <a href="#team" data-i18n="nav.team">הצוות</a>
       </nav>
       <div class="nav-actions">
         <button class="lang-toggle" id="langToggle" type="button" aria-label="Switch language">EN</button>
@@ -270,31 +269,6 @@
       </div>
     </section>
 
-    <!-- ===== Team · shape: atom ===== -->
-    <section class="panel" id="team" data-shape="6">
-      <div class="container">
-        <p class="kicker reveal" data-i18n="team.kicker">הצוות שלנו</p>
-        <h2 class="reveal d1" data-i18n-html="team.title">האנשים מאחורי הקוד, <span class="hl">והפנים שמולכם</span></h2>
-        <div class="team-grid">
-          <div class="team-card reveal">
-            <span class="team-avatar team-avatar--photo" aria-hidden="true" style="background-image:url('/assets/team/osher.jpg');background-size:125%;background-position:center top"></span>
-            <h3 data-i18n="t1.name">אושר ותארי</h3>
-            <p data-i18n="t1.role">מנכ״ל</p>
-          </div>
-          <div class="team-card reveal d1">
-            <span class="team-avatar team-avatar--photo" aria-hidden="true" style="background-image:url('/assets/team/nir.jpg');background-size:165%;background-position:center 8%"></span>
-            <h3 data-i18n="t2.name">ניר מיכלוביץ׳</h3>
-            <p data-i18n="t2.role">מפתח תוכנה · ישראל</p>
-          </div>
-          <div class="team-card reveal d2">
-            <span class="team-avatar" aria-hidden="true">YB</span>
-            <h3 data-i18n="t3.name">יואב בר אשר</h3>
-            <p data-i18n="t3.role">מפתח תוכנה · ארה״ב</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- ===== Contact · shape: paper plane ===== -->
     <section class="panel contact" id="contact" data-shape="4">
       <div class="container contact-inner">
@@ -306,21 +280,25 @@
             <div class="field">
               <label for="cfName" data-i18n="contact.name">שם מלא</label>
               <input type="text" id="cfName" name="name" autocomplete="name" required>
+              <span class="field-hint" id="cfNameHint" data-i18n="contact.err.name" hidden>נא למלא שם מלא</span>
             </div>
             <div class="field-row">
               <div class="field">
                 <label for="cfEmail" data-i18n="contact.email">אימייל</label>
                 <input type="email" id="cfEmail" name="email" autocomplete="email" dir="ltr" required>
+                <span class="field-hint" id="cfEmailHint" data-i18n="contact.err.email" hidden>נא להזין כתובת אימייל תקינה</span>
               </div>
               <div class="field">
                 <label for="cfTel" data-i18n="contact.phone">טלפון</label>
                 <input type="tel" id="cfTel" name="tel" autocomplete="tel" dir="ltr" required>
+                <span class="field-hint" id="cfTelHint" data-i18n="contact.err.phone" hidden>נא להזין מספר טלפון</span>
               </div>
             </div>
             <label class="consent">
               <input type="checkbox" id="cfConsent" name="privacy_consent" required>
               <span data-i18n-html="contact.consent">קראתי ואני מאשר/ת את <a href="/privacy.html" target="_blank">מדיניות הפרטיות</a></span>
             </label>
+            <span class="field-hint" id="cfConsentHint" data-i18n="contact.err.consent" hidden>כדי לשלוח, יש לאשר את מדיניות הפרטיות</span>
             <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" class="gotcha">
             <button class="btn btn-form" type="submit" data-i18n="contact.send">שלחו לנו הודעה</button>
             <p class="form-status" id="cfStatus" role="status" hidden></p>

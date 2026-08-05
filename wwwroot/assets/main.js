@@ -98,6 +98,10 @@
       'contact.sending': 'שולחים...',
       'contact.error': 'ההודעה לא נשלחה. נסו שוב, או כתבו לנו ישירות במייל.',
       'contact.consent': 'קראתי ואני מאשר/ת את <a href="/privacy.html" target="_blank">מדיניות הפרטיות</a>',
+      'contact.err.name': 'נא למלא שם מלא',
+      'contact.err.email': 'נא להזין כתובת אימייל תקינה',
+      'contact.err.phone': 'נא להזין מספר טלפון',
+      'contact.err.consent': 'כדי לשלוח, יש לאשר את מדיניות הפרטיות',
       'bm.live': 'אתר חי',
       'bm.loading': 'טוען את האתר החי…',
       'bm.fallbackText': 'האתר הזה מעדיף להיפתח במסך מלא.',
@@ -211,6 +215,10 @@
       'contact.sending': 'Sending...',
       'contact.error': 'The message wasn’t sent. Please try again, or email us directly.',
       'contact.consent': 'I have read and agree to the <a href="/privacy.html" target="_blank">privacy policy</a>',
+      'contact.err.name': 'Please enter your full name',
+      'contact.err.email': 'Please enter a valid email address',
+      'contact.err.phone': 'Please enter a phone number',
+      'contact.err.consent': 'Please accept the privacy policy to send',
       'bm.live': 'Live site',
       'bm.loading': 'Loading the live website…',
       'bm.fallbackText': 'This website prefers to open full-screen.',
@@ -477,6 +485,25 @@
   if (contactForm) {
     var cfStatus = document.getElementById('cfStatus');
     var cfButton = contactForm.querySelector('[type="submit"]');
+    var cfFields = ['cfName', 'cfEmail', 'cfTel', 'cfConsent'].map(function (id) {
+      return document.getElementById(id);
+    });
+
+    function markField(el, bad) {
+      var hint = document.getElementById(el.id + 'Hint');
+      if (hint) hint.hidden = !bad;
+      el.classList.toggle('invalid', bad);
+      if (bad) el.setAttribute('aria-invalid', 'true');
+      else el.removeAttribute('aria-invalid');
+    }
+
+    cfFields.forEach(function (el) {
+      ['input', 'change'].forEach(function (ev) {
+        el.addEventListener(ev, function () {
+          if (el.checkValidity()) markField(el, false);
+        });
+      });
+    });
 
     function setStatus(key) {
       cfStatus.hidden = false;
@@ -488,7 +515,13 @@
 
     contactForm.addEventListener('submit', function (e) {
       e.preventDefault();
-      if (!contactForm.reportValidity()) return;
+      var firstBad = null;
+      cfFields.forEach(function (el) {
+        var bad = !el.checkValidity();
+        markField(el, bad);
+        if (bad && !firstBad) firstBad = el;
+      });
+      if (firstBad) { firstBad.focus(); return; }
       var dict = I18N[document.documentElement.lang] || I18N.he;
 
       var data = new FormData(contactForm);
