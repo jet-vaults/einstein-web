@@ -1,6 +1,7 @@
 /* ===== Einstein Web — scroll-morphing particle scene =====
    One cloud of brand-colored particles morphs between a shape per
-   section as you scroll: atom -> code -> skyline -> rocket -> paper plane.
+   section as you scroll: atom, code, browser, rocket, paper plane,
+   star, team, brackets, gauge, clients checkmark.
    Degrades gracefully: no WebGL / reduced motion => canvas hidden,
    page works as a normal static site. */
 
@@ -363,51 +364,36 @@ function init(renderer) {
     return out;
   }
 
-  // a city skyline for the clients strip — office towers with lit windows,
-  // a nod to the real-estate developers we build for. Built in local
-  // coordinates (standing on y = 0); the render loop anchors them to the
-  // strip's own bottom padding so they scroll with the page and never
-  // sit on top of the next section. Rebuilt on resize.
-  let skyMeta = null;
+  // a soft checkmark for the clients strip — a quiet "trusted" nod under
+  // the client logos. Built in local coordinates (standing on y = 0); the
+  // render loop anchors it to the strip's own bottom padding so it scrolls
+  // with the page and never sits on top of the next section.
+  let checkMeta = null;
 
-  function shapeSkyline() {
+  function shapeCheck() {
     const out = new Float32Array(N * 3);
-    // a tight centered row, the middle tower standing taller
-    const blds = [
-      { x: -1.85, w: 1.0, h: 1.15 },
-      { x: -0.5, w: 1.0, h: 1.6 },
-      { x: 0.85, w: 1.0, h: 1.15 }
+    // two strokes of the check, densely sampled so they read as one calm mark
+    const V = [-0.35, 0.06];                 // vertex (lowest point)
+    const segs = [
+      [[-1.25, 0.92], V],                    // short down-stroke
+      [V, [1.45, 1.72]]                      // long up-stroke
     ];
-    const segs = [];
-    for (const b of blds) {
-      segs.push(
-        [[b.x, 0], [b.x, b.h]],
-        [[b.x, b.h], [b.x + b.w, b.h]],
-        [[b.x + b.w, b.h], [b.x + b.w, 0]]
-      );
-    }
-    // one shared base line under the row
-    segs.push([[-2.1, 0], [2.1, 0]]);
-    const nOutline = Math.floor(N * 0.55);
-    sampleSegments(segs, out, 0, nOutline, 0.015, 0.06);
-    // lit windows: a loose grid of dots inside the towers
-    for (let i = nOutline; i < N; i++) {
-      const b = blds[(Math.random() * blds.length) | 0];
-      const cols = Math.max(2, Math.round(b.w / 0.22));
-      const rows = Math.max(2, Math.round(b.h / 0.24));
-      const c = (Math.random() * cols) | 0, r = (Math.random() * rows) | 0;
-      out[i * 3] = b.x + (c + 0.5) * (b.w / cols) + gauss(0.008);
-      out[i * 3 + 1] = (r + 0.5) * (b.h / rows) + gauss(0.008);
-      out[i * 3 + 2] = gauss(0.05);
+    const nStroke = Math.floor(N * 0.9);
+    sampleSegments(segs, out, 0, nStroke, 0.05, 0.09);
+    // a sparse halo of drifting sparkles around the mark keeps it alive
+    for (let i = nStroke; i < N; i++) {
+      out[i * 3] = rand(-1.9, 2.1);
+      out[i * 3 + 1] = rand(0.1, 2.1);
+      out[i * 3 + 2] = gauss(0.2);
     }
     const ly = new Float32Array(N);
     for (let i = 0; i < N; i++) ly[i] = out[i * 3 + 1];
-    skyMeta = { ly };
+    checkMeta = { ly };
     return out;
   }
 
   const browserDir = () => document.documentElement.dir === 'rtl' ? -1 : 1;
-  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapePlane(), shapeStar(), shapeTeam(), shapeBrackets(), shapeGauge(), shapeSkyline()];
+  const shapes = [shapeAtom(), shapeCode(), shapeBrowser(browserDir()), shapeRocket(), shapePlane(), shapeStar(), shapeTeam(), shapeBrackets(), shapeGauge(), shapeCheck()];
 
 
   // rebuild the browser shape when the language toggle flips direction
@@ -541,7 +527,7 @@ function init(renderer) {
     shapes[4].set(shapePlane());      // refit the plane to the new margin
     shapes[7].set(shapeBrackets());   // refit the brackets to the new margins
     shapes[8].set(shapeGauge());      // refit the gauge to the new margin
-    shapes[9].set(shapeSkyline());    // refit the skyline to the new width
+    shapes[9].set(shapeCheck());      // rebuild the clients checkmark
   });
 
   function render() {
@@ -571,16 +557,16 @@ function init(renderer) {
       }
     }
 
-    // the client towers stand in the strip's own bottom padding and scroll
-    // with the page, so they can never overtake the next section
-    if (targetIdx === 9 && skyMeta) {
+    // the clients checkmark stands in the strip's own bottom padding and
+    // scrolls with the page, so it can never overtake the next section
+    if (targetIdx === 9 && checkMeta) {
       const sec = document.getElementById('clients');
       if (sec) {
         const rb = sec.getBoundingClientRect().bottom;
         const s = isMobile ? 0.8 : 1;
         const yOff = (3.3137 - ((rb - 40) / window.innerHeight) * 6.6274) / s;
-        const sky = shapes[9];
-        for (let i = 0; i < N; i++) sky[i * 3 + 1] = skyMeta.ly[i] + yOff;
+        const chk = shapes[9];
+        for (let i = 0; i < N; i++) chk[i * 3 + 1] = checkMeta.ly[i] + yOff;
       }
     }
 
@@ -607,7 +593,7 @@ function init(renderer) {
 
     for (let i = 0; i < N * 3; i++) base[i] += (target[i] - base[i]) * k;
 
-    // the gauge, plane and skyline need crisp detail: smaller dots, calmer wobble
+    // the gauge, plane and checkmark need crisp detail: smaller dots, calmer wobble
     const fine = targetIdx === 8 || targetIdx === 4 || targetIdx === 9;
     const sizeTarget = fine ? (isMobile ? 0.06 : 0.045) : (isMobile ? 0.085 : 0.065);
     mat.size += (sizeTarget - mat.size) * (1 - Math.exp(-dt * 2.5));
