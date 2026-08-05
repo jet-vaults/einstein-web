@@ -302,7 +302,7 @@
           <p class="kicker reveal" data-i18n="contact.kicker">צרו קשר</p>
           <h2 class="reveal d1" data-i18n="contact.title">בואו נבנה משהו ביחד</h2>
           <p class="lead reveal d2" data-i18n="contact.sub">השאירו פרטים ונחזור אליכם תוך יום עסקים.</p>
-          <form class="contact-form reveal d3" id="contactForm" novalidate>
+          <form class="contact-form reveal d3" id="contactForm" action="https://formspree.io/f/maewyogw" method="POST" novalidate>
             <div class="field">
               <label for="cfName" data-i18n="contact.name">שם מלא</label>
               <input type="text" id="cfName" name="name" autocomplete="name" required>
@@ -317,7 +317,13 @@
                 <input type="tel" id="cfTel" name="tel" autocomplete="tel" dir="ltr" required>
               </div>
             </div>
+            <label class="consent">
+              <input type="checkbox" id="cfConsent" name="privacy_consent" required>
+              <span data-i18n-html="contact.consent">קראתי ואני מאשר/ת את <a href="/privacy.html" target="_blank">מדיניות הפרטיות</a></span>
+            </label>
+            <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" class="gotcha">
             <button class="btn btn-form" type="submit" data-i18n="contact.send">שלחו לנו הודעה</button>
+            <p class="form-status" id="cfStatus" role="status" hidden></p>
           </form>
           <p class="contact-direct reveal d3">
             <span data-i18n="contact.or">או כתבו לנו ישירות:</span>

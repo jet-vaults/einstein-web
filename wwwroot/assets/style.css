@@ -743,6 +743,43 @@ h3 { font-size: 1.2rem; margin-block-end: 0.35rem; }
 
 .btn-form { width: 100%; margin-block-start: 0.3rem; }
 
+.consent {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.88rem;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.consent input {
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: var(--blue);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.consent a { color: var(--blue); font-weight: 600; }
+
+.contact-form .gotcha {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.form-status {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--blue);
+}
+
+.form-status.is-error { color: #c0392b; }
+
 .contact-direct {
   margin-block-start: 1.4rem;
   font-size: 0.92rem;

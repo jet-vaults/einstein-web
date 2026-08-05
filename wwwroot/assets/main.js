@@ -95,6 +95,10 @@
       'contact.send': 'שלחו לנו הודעה',
       'contact.or': 'או כתבו לנו ישירות:',
       'contact.subject': 'פנייה חדשה מהאתר',
+      'contact.sending': 'שולחים...',
+      'contact.success': 'ההודעה נשלחה! נחזור אליכם תוך יום עסקים.',
+      'contact.error': 'ההודעה לא נשלחה. נסו שוב, או כתבו לנו ישירות במייל.',
+      'contact.consent': 'קראתי ואני מאשר/ת את <a href="/privacy.html" target="_blank">מדיניות הפרטיות</a>',
       'bm.live': 'אתר חי',
       'bm.loading': 'טוען את האתר החי…',
       'bm.fallbackText': 'האתר הזה מעדיף להיפתח במסך מלא.',
@@ -205,6 +209,10 @@
       'contact.send': 'Send us a message',
       'contact.or': 'Or email us directly:',
       'contact.subject': 'New inquiry from the website',
+      'contact.sending': 'Sending...',
+      'contact.success': 'Message sent! We’ll get back to you within one business day.',
+      'contact.error': 'The message wasn’t sent. Please try again, or email us directly.',
+      'contact.consent': 'I have read and agree to the <a href="/privacy.html" target="_blank">privacy policy</a>',
       'bm.live': 'Live site',
       'bm.loading': 'Loading the live website…',
       'bm.fallbackText': 'This website prefers to open full-screen.',
@@ -466,22 +474,48 @@
     applyState();
   })();
 
-  /* ===== Contact form -> prefilled email ===== */
+  /* ===== Contact form -> Formspree (AJAX) ===== */
   var contactForm = document.getElementById('contactForm');
   if (contactForm) {
+    var cfStatus = document.getElementById('cfStatus');
+    var cfButton = contactForm.querySelector('[type="submit"]');
+
+    function setStatus(key) {
+      cfStatus.hidden = false;
+      cfStatus.classList.toggle('is-error', key === 'contact.error');
+      cfStatus.setAttribute('data-i18n', key);   // keeps it translated on toggle
+      var dict = I18N[document.documentElement.lang] || I18N.he;
+      cfStatus.textContent = dict[key];
+    }
+
     contactForm.addEventListener('submit', function (e) {
       e.preventDefault();
       if (!contactForm.reportValidity()) return;
       var dict = I18N[document.documentElement.lang] || I18N.he;
-      var name = document.getElementById('cfName').value.trim();
-      var email = document.getElementById('cfEmail').value.trim();
-      var tel = document.getElementById('cfTel').value.trim();
-      var body = dict['contact.name'] + ': ' + name + '\n' +
-                 dict['contact.email'] + ': ' + email + '\n' +
-                 dict['contact.phone'] + ': ' + tel;
-      location.href = 'mailto:info@einstein-web.co.il' +
-        '?subject=' + encodeURIComponent(dict['contact.subject']) +
-        '&body=' + encodeURIComponent(body);
+
+      var data = new FormData(contactForm);
+      data.append('_subject', dict['contact.subject']);
+
+      cfButton.disabled = true;
+      cfButton.setAttribute('data-i18n', 'contact.sending');
+      cfButton.textContent = dict['contact.sending'];
+      cfStatus.hidden = true;
+
+      fetch(contactForm.action, {
+        method: 'POST',
+        body: data,
+        headers: { Accept: 'application/json' }
+      }).then(function (res) {
+        if (!res.ok) throw new Error('formspree ' + res.status);
+        setStatus('contact.success');
+        contactForm.reset();
+      }).catch(function () {
+        setStatus('contact.error');
+      }).finally(function () {
+        cfButton.disabled = false;
+        cfButton.setAttribute('data-i18n', 'contact.send');
+        cfButton.textContent = (I18N[document.documentElement.lang] || I18N.he)['contact.send'];
+      });
     });
   }
 
