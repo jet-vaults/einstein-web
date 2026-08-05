@@ -27,9 +27,9 @@ if (!canvas || reduceMotion) {
 
 function init(renderer) {
   const isMobile = window.innerWidth < 768;
-  const N = isMobile ? 3200 : 6400;
+  const N = isMobile ? 2600 : 6400;
 
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 1.75));
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   const scene = new THREE.Scene();
@@ -431,11 +431,12 @@ function init(renderer) {
   ctx.fillRect(0, 0, 64, 64);
 
   const mat = new THREE.PointsMaterial({
-    size: isMobile ? 0.085 : 0.065,
+    size: isMobile ? 0.065 : 0.065,
     map: new THREE.CanvasTexture(spriteCanvas),
     vertexColors: true,
     transparent: true,
-    opacity: 0.85,
+    // on phones the cloud sits behind the content, so keep it a quiet backdrop
+    opacity: isMobile ? 0.45 : 0.85,
     depthWrite: false,
     sizeAttenuation: true
   });
@@ -476,8 +477,9 @@ function init(renderer) {
     if (isForced) return;
     const idx = pickSection();
     if (idx !== targetIdx) {
-      // gentle glide between the closing sections, punchier elsewhere
-      scale = (idx >= 4 && idx !== 5) ? 0.94 : 0.78;
+      // barely-there breath on section change — the morph itself carries
+      // the transition, so no shrink-pop "brake" between shapes
+      scale = 0.965;
       targetIdx = idx;
       if (idx === 8) gaugeT0 = performance.now();   // restart the sweep
     }
@@ -591,7 +593,7 @@ function init(renderer) {
 
     // the gauge, plane and checkmark need crisp detail: smaller dots, calmer wobble
     const fine = targetIdx === 8 || targetIdx === 4 || targetIdx === 9;
-    const sizeTarget = fine ? (isMobile ? 0.06 : 0.045) : (isMobile ? 0.085 : 0.065);
+    const sizeTarget = fine ? (isMobile ? 0.05 : 0.045) : (isMobile ? 0.065 : 0.065);
     mat.size += (sizeTarget - mat.size) * (1 - Math.exp(-dt * 2.5));
     const amp = fine ? 0.009 : 0.024;
     for (let i = 0; i < N; i++) {

@@ -41,7 +41,7 @@ body {
     radial-gradient(ellipse 1000px 700px at 85% -5%, rgba(1, 160, 198, 0.08), transparent 60%),
     radial-gradient(ellipse 900px 700px at 5% 105%, rgba(23, 99, 170, 0.07), transparent 60%),
     var(--bg);
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .container {
