@@ -2,8 +2,8 @@
   "url": "https://einstein-web.co.il",
   "pages_url": "https://einstein-web.pages.dev",
   "nameservers": [
-    "gordon.ns.cloudflare.com",
-    "sureena.ns.cloudflare.com"
+    "kinsley.ns.cloudflare.com",
+    "zac.ns.cloudflare.com"
   ],
   "storage": "https://jetvaults.blob.core.windows.net/einstein-web/",
   "private_storage": "https://jetvaults.blob.core.windows.net/einstein-web-private/",
