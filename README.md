@@ -12,7 +12,7 @@
 | **Private storage** | `https://jetvaults.blob.core.windows.net/einstein-web-private/` |
 | **Public container** | `einstein-web` |
 | **Private container** | `einstein-web-private` |
-| **Activated** | No |
+| **Activated** | Yes |
 
 ## Nameservers
 
