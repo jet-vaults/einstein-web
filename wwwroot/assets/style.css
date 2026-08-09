@@ -575,6 +575,16 @@ h3 { font-size: 1.2rem; margin-block-end: 0.35rem; }
   color: #dce9f5;
 }
 
+/* on phones the band fills the screen, so let the code brackets behind it
+   glow faintly through instead of being hidden completely */
+@media (max-width: 48rem) {
+  .dark-tech {
+    background:
+      radial-gradient(ellipse 900px 500px at 80% -10%, rgba(1, 160, 198, 0.25), transparent 60%),
+      rgba(11, 32, 54, 0.9);
+  }
+}
+
 .dark-tech .kicker { background: rgba(1, 160, 198, 0.18); color: #7ee0f7; }
 .dark-tech h2 { color: #fff; margin-block-end: 0.6rem; }
 

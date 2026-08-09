@@ -290,8 +290,10 @@ function init(renderer) {
     const cardHalfPx = Math.min(window.innerWidth, 1184) / 2 - 24;
     const cardEdge = halfVis * (2 * cardHalfPx / window.innerWidth);
     const avail = Math.max(halfVis - cardEdge, 0.9);
-    const m = isMobile ? halfVis + 2 : (halfVis + cardEdge) / 2;   // margin midpoints
-    const w = Math.min(avail * 0.55, 1.1), H = 1.7;
+    // phones have no side margins, so the brackets frame the band itself
+    const m = isMobile ? 1.05 : (halfVis + cardEdge) / 2;   // margin midpoints
+    const w = isMobile ? 0.62 : Math.min(avail * 0.55, 1.1);
+    const H = isMobile ? 1.5 : 1.7;
     const segs = [
       // < on the left
       [[-m + w / 2, H], [-m - w / 2, 0]], [[-m - w / 2, 0], [-m + w / 2, -H]],
@@ -314,11 +316,12 @@ function init(renderer) {
     const textHalfPx = Math.min(window.innerWidth, 1040) / 2;   // 65rem column
     const textEdge = halfVis * (2 * textHalfPx / window.innerWidth);
     const avail = Math.max(halfVis - textEdge, 0.9);
-    const SC = Math.min(Math.max(avail / 3.1, 0.4), 0.9);
+    // on phones the text column is full width, so the dial sits behind it
+    const SC = isMobile ? 0.85 : Math.min(Math.max(avail / 3.1, 0.4), 0.9);
     // hover above the start of the first paragraph (top-right of the text
     // column in RTL), beside the centered title
-    const CX = isMobile ? halfVis * 1.8 : textEdge + 0.1;
-    const CY = 1.55;
+    const CX = isMobile ? 0 : textEdge + 0.1;
+    const CY = isMobile ? 0.15 : 1.55;
     const T = (x, y) => [x * SC + CX, y * SC + CY];
     const segs = [];
     const A0 = Math.PI * 7 / 6, A1 = -Math.PI / 6;   // 210° .. -30°
@@ -595,6 +598,12 @@ function init(renderer) {
     const fine = targetIdx === 8 || targetIdx === 4 || targetIdx === 9;
     const sizeTarget = fine ? (isMobile ? 0.05 : 0.045) : (isMobile ? 0.065 : 0.065);
     mat.size += (sizeTarget - mat.size) * (1 - Math.exp(-dt * 2.5));
+    // the gauge and the bracket band read through their sections on phones,
+    // so lift them out of the ambient haze
+    const opacityTarget = isMobile
+      ? (targetIdx === 7 ? 0.95 : targetIdx === 8 ? 0.5 : 0.45)
+      : 0.85;
+    mat.opacity += (opacityTarget - mat.opacity) * (1 - Math.exp(-dt * 2.5));
     const amp = fine ? 0.009 : 0.024;
     for (let i = 0; i < N; i++) {
       const ph = phases[i];
