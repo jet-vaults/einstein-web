@@ -632,61 +632,36 @@ h3 { font-size: 1.2rem; margin-block-end: 0.35rem; }
    comfortable padding so the cards sit as the centered focus. */
 #team.panel { min-height: auto; padding-block: clamp(5rem, 12vh, 9rem); }
 #team .container { text-align: center; }
+#team .lead { margin-block-end: 2.6rem; }
 
+/* Portrait cards: the photo IS the card. Greyscale by default, colour on
+   hover; the name sits on a soft white gradient at the bottom. */
 .team-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.4rem;
-  max-width: 54rem;
+  max-width: 38rem;
   margin-inline: auto;
 }
 
 .team-card {
   position: relative;
   overflow: hidden;
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(14, 42, 71, 0.08);
-  padding: 2.5rem 1.4rem 2.1rem;
-  text-align: center;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-}
-
-.team-card::before {
-  content: '';
-  position: absolute;
-  inset-inline: 0;
-  top: 0;
-  height: 4px;
-  background: var(--grad);
+  border-radius: 22px;
+  aspect-ratio: 4 / 4.8;
+  background: var(--tint);
+  box-shadow: 0 14px 38px rgba(14, 42, 71, 0.12);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .team-card:hover {
   transform: translateY(-6px);
-  border-color: rgba(1, 160, 198, 0.45);
   box-shadow: 0 22px 50px rgba(23, 99, 170, 0.16);
 }
 
-.team-avatar {
-  display: inline-grid;
-  place-items: center;
-  width: 8.1rem;
-  height: 8.1rem;
-  border-radius: 50%;
-  background: var(--grad);
-  color: #fff;
-  font-family: var(--font-display);
-  font-size: 2.45rem;
-  letter-spacing: 0.03em;
-  margin-block-end: 1.1rem;
-  box-shadow: 0 0 0 4px #fff, 0 0 0 6px rgba(1, 160, 198, 0.35);
-}
-
-/* Photo avatars: keep the same circular size + ring, fill with the image.
-   Greyscale by default, full colour when the card is hovered. */
-.team-avatar--photo {
-  background-color: #fff;
+.team-photo {
+  position: absolute;
+  inset: 0;
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center top;
@@ -694,23 +669,23 @@ h3 { font-size: 1.2rem; margin-block-end: 0.35rem; }
   transition: filter 0.35s ease;
 }
 
-.team-card:hover .team-avatar--photo,
-.team-card:focus-within .team-avatar--photo { filter: grayscale(0); }
+.team-card:hover .team-photo,
+.team-card:focus-within .team-photo { filter: grayscale(0); }
 
-.team-card h3 { font-size: 1.25rem; margin-block-end: 0.55rem; }
-
-.team-card p {
-  display: inline-block;
-  background: rgba(1, 160, 198, 0.1);
-  color: var(--blue);
-  font-weight: 600;
-  font-size: 0.82rem;
-  padding: 0.3rem 0.95rem;
-  border-radius: 100px;
+.team-label {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  padding: 2.6rem 1.3rem 1.05rem;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.96) 40%, rgba(255, 255, 255, 0));
 }
 
+.team-label h3 { font-size: 1.18rem; margin-block-end: 0; }
+
+.team-label p { color: var(--muted); font-size: 0.88rem; }
+
 @media (max-width: 48rem) {
-  .team-grid { grid-template-columns: 1fr; max-width: 22rem; }
+  .team-grid { grid-template-columns: 1fr; max-width: 20rem; }
 }
 
 /* ===== Contact form ===== */
