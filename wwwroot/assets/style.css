@@ -231,18 +231,6 @@ h1 { font-size: clamp(2.5rem, 6vw, 4.2rem); }
 h2 { font-size: clamp(1.8rem, 3.6vw, 2.6rem); margin-block-end: 1rem; }
 h3 { font-size: 1.2rem; margin-block-end: 0.35rem; }
 
-.kicker {
-  display: inline-block;
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--cyan);
-  background: rgba(1, 160, 198, 0.1);
-  border-radius: 100px;
-  padding: 0.25rem 0.9rem;
-  margin-block-end: 1.1rem;
-}
-
 .lead {
   font-size: clamp(1.05rem, 2vw, 1.2rem);
   color: var(--muted);
@@ -585,7 +573,6 @@ h3 { font-size: 1.2rem; margin-block-end: 0.35rem; }
   }
 }
 
-.dark-tech .kicker { background: rgba(1, 160, 198, 0.18); color: #7ee0f7; }
 .dark-tech h2 { color: #fff; margin-block-end: 0.6rem; }
 
 .dt-cols {
