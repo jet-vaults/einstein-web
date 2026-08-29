@@ -669,8 +669,13 @@ h3 { font-size: 1.2rem; margin-block-end: 0.35rem; }
 
 .team-label p { color: var(--muted); font-size: 0.88rem; }
 
+/* On phones the subtitle breaks into two lines and drops the dash */
+.sub-br { display: none; }
+
 @media (max-width: 48rem) {
   .team-grid { grid-template-columns: 1fr; max-width: 20rem; }
+  .sub-br { display: inline; }
+  .sub-dash { display: none; }
 }
 
 /* ===== Contact form ===== */
