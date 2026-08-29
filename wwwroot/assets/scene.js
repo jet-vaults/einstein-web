@@ -313,15 +313,38 @@ function init(renderer) {
   function shapeGauge() {
     const out = new Float32Array(N * 3);
     const halfVis = 3.3137 * (window.innerWidth / window.innerHeight);
+    // phones have no side margin: the text column is full width, and a
+    // dense dial behind body copy fights the reading. Give the section a
+    // loose, wide haze instead - the same quiet backdrop the other
+    // sections get - and skip the needle animation.
+    if (isMobile) {
+      // a sparse scatter, weighted toward the screen edges so the middle
+      // of the text column stays quiet; the rest of the cloud parks
+      // off-screen
+      const nHaze = Math.floor(N * 0.22);
+      for (let i = 0; i < N; i++) {
+        if (i < nHaze) {
+          const side = Math.random() < 0.5 ? -1 : 1;
+          out[i * 3] = side * Math.sqrt(Math.random()) * halfVis * 1.25;
+          out[i * 3 + 1] = (Math.random() * 2 - 1) * 4.6;
+          out[i * 3 + 2] = gauss(0.6);
+        } else {
+          out[i * 3] = gauss(0.4);
+          out[i * 3 + 1] = 40 + Math.random() * 10;   // far above the viewport
+          out[i * 3 + 2] = 0;
+        }
+      }
+      gaugeMeta = null;
+      return out;
+    }
     const textHalfPx = Math.min(window.innerWidth, 1040) / 2;   // 65rem column
     const textEdge = halfVis * (2 * textHalfPx / window.innerWidth);
     const avail = Math.max(halfVis - textEdge, 0.9);
-    // on phones the text column is full width, so the dial sits behind it
-    const SC = isMobile ? 0.85 : Math.min(Math.max(avail / 3.1, 0.4), 0.9);
+    const SC = Math.min(Math.max(avail / 3.1, 0.4), 0.9);
     // hover above the start of the first paragraph (top-right of the text
     // column in RTL), beside the centered title
-    const CX = isMobile ? 0 : textEdge + 0.1;
-    const CY = isMobile ? 0.15 : 1.55;
+    const CX = textEdge + 0.1;
+    const CY = 1.55;
     const T = (x, y) => [x * SC + CX, y * SC + CY];
     const segs = [];
     const A0 = Math.PI * 7 / 6, A1 = -Math.PI / 6;   // 210° .. -30°
@@ -598,10 +621,10 @@ function init(renderer) {
     const fine = targetIdx === 8 || targetIdx === 4 || targetIdx === 9;
     const sizeTarget = fine ? (isMobile ? 0.05 : 0.045) : (isMobile ? 0.065 : 0.065);
     mat.size += (sizeTarget - mat.size) * (1 - Math.exp(-dt * 2.5));
-    // the gauge and the bracket band read through their sections on phones,
-    // so lift them out of the ambient haze
+    // the bracket band reads through its section on phones, so lift it
+    // out of the ambient haze
     const opacityTarget = isMobile
-      ? (targetIdx === 7 ? 0.95 : targetIdx === 8 ? 0.5 : 0.45)
+      ? (targetIdx === 7 ? 0.95 : 0.45)
       : 0.85;
     mat.opacity += (opacityTarget - mat.opacity) * (1 - Math.exp(-dt * 2.5));
     const amp = fine ? 0.009 : 0.024;
