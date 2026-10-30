@@ -1174,3 +1174,22 @@ html.a11y-cursor * {
 @media (max-width: 36rem) {
   .project-grid { grid-template-columns: 1fr; }
 }
+
+/* ===== Team ===== */
+#team.panel { min-height: auto; padding-block: clamp(5rem, 12vh, 9rem); }
+#team .container { text-align: center; }
+#team .lead { margin-inline: auto; margin-block-end: 2.6rem; }
+.team-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.4rem; max-width: 33rem; margin-inline: auto; }
+.team-card { position: relative; display: flex; flex-direction: column; overflow: hidden; border-radius: 22px; aspect-ratio: 4 / 4.8; background: #fff; box-shadow: 0 14px 38px rgba(14, 42, 71, 0.12); transition: transform 0.25s ease, box-shadow 0.25s ease; }
+.team-card:hover { transform: translateY(-6px); box-shadow: 0 22px 50px rgba(23, 99, 170, 0.16); }
+.team-photo { display: block; flex: 1 1 auto; min-height: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+.team-label { position: relative; z-index: 1; flex: 0 0 auto; padding: 0.95rem 1.3rem 1rem; text-align: center; background: #fff; border-top: 1px solid rgba(14, 42, 71, 0.08); }
+.team-label h3 { font-size: 1.18rem; margin-block-end: 0.1rem; }
+.team-label p { color: var(--muted); font-size: 0.86rem; margin: 0; letter-spacing: 0.02em; }
+.sub-br { display: none; }
+@media (max-width: 48rem) {
+  .team-grid { grid-template-columns: 1fr; max-width: 20rem; }
+  .sub-br { display: inline; }
+  .sub-dash { display: none; }
+}
+html[lang="en"] .team-label p { display: none; }
